@@ -1,0 +1,15 @@
+{
+  "name": "Mostream",
+  "short_name": "Mostream",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0c0f",
+  "theme_color": "#0d0c0f",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}
