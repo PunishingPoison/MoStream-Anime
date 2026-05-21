@@ -3,6 +3,7 @@ import * as mangadex from '@/lib/providers/mangadex';
 import * as consumet from '@/lib/providers/consumet';
 import * as kitsu from '@/lib/providers/kitsu';
 import * as mangahook from '@/lib/providers/mangahook';
+import * as comick from '@/lib/providers/comick';
 import { mangaCache } from '@/lib/cache';
 
 export const dynamic = 'force-dynamic';
@@ -17,7 +18,7 @@ export async function GET(request: NextRequest) {
   }
 
   const isTitle = searchParams.get('isTitle') === 'true';
-  const cacheKey = `manga-info-v2-${provider || 'auto'}-${id}-${isTitle}`;
+  const cacheKey = `manga-info-v3-${provider || 'auto'}-${id}-${isTitle}`;
 
   try {
     const data = await mangaCache.getOrFetch(cacheKey, async () => {
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest) {
             const res = await mangadex.searchManga(queryId);
             if (res.length > 0) resolvedId = res[0].id;
             else return null;
-          } else if (pName === 'consumet' || pName === 'comick') {
+          } else if (pName === 'consumet' || pName === 'comick_consumet') {
             const res = await consumet.searchManga(queryId);
             if (res.length > 0) resolvedId = res[0].id;
             else return null;
@@ -42,14 +43,19 @@ export async function GET(request: NextRequest) {
             const res = await kitsu.searchManga(queryId);
             if (res.length > 0) resolvedId = res[0].id;
             else return null;
+          } else if (pName === 'comick') {
+            const res = await comick.searchManga(queryId);
+            if (res.length > 0) resolvedId = res[0].id;
+            else return null;
           }
         }
 
         let info;
         if (pName === 'mangadex') info = await mangadex.getMangaInfo(resolvedId);
         else if (pName === 'mangahook') info = { id: resolvedId, ...(await mangahook.getMangaInfo(resolvedId)) };
-        else if (pName === 'consumet' || pName === 'comick') info = { id: resolvedId, title: '', chapters: await consumet.getMangaChapters(resolvedId, pName) };
+        else if (pName === 'consumet' || pName === 'comick_consumet') info = { id: resolvedId, title: '', chapters: await consumet.getMangaChapters(resolvedId, pName) };
         else if (pName === 'kitsu') info = { id: resolvedId, title: '', chapters: await kitsu.getMangaChapters(resolvedId) };
+        else if (pName === 'comick') info = { id: resolvedId, ...(await comick.getMangaInfo(resolvedId)) };
         
         if (info && info.chapters && info.chapters.length > 0) {
           return { ...info, provider: pName };
@@ -63,6 +69,7 @@ export async function GET(request: NextRequest) {
       } else {
         const errors: string[] = [];
         const results = await Promise.all([
+          fetchFromProvider('comick', id).catch((e) => { errors.push(`comick: ${e.message}`); return null; }),
           fetchFromProvider('mangadex', id).catch((e) => { errors.push(`mangadex: ${e.message}`); return null; }),
           fetchFromProvider('consumet', id).catch((e) => { errors.push(`consumet: ${e.message}`); return null; }),
           fetchFromProvider('mangahook', id).catch((e) => { errors.push(`mangahook: ${e.message}`); return null; })

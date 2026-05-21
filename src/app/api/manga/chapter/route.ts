@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import * as mangadex from '@/lib/providers/mangadex';
 import * as consumet from '@/lib/providers/consumet';
 import * as mangahook from '@/lib/providers/mangahook';
+import * as comick from '@/lib/providers/comick';
 
 const PROXY_BASE = '/api/manga/proxy?url=';
 
@@ -30,7 +31,15 @@ export async function GET(request: NextRequest) {
     }));
     return NextResponse.json(proxied);
   }
-  if (provider === 'consumet' || provider === 'comick' || provider === 'mangahere' || provider === 'mangapill') {
+  if (provider === 'comick') {
+    const pages = await comick.getChapterPages(id);
+    const proxied = pages.map((url: string) => ({
+      img: url.startsWith('http') ? `${PROXY_BASE}${encodeURIComponent(url)}` : url,
+      page: 0,
+    }));
+    return NextResponse.json(proxied);
+  }
+  if (provider === 'consumet' || provider === 'comick_consumet' || provider === 'mangahere' || provider === 'mangapill') {
     const pages = await consumet.getChapterPages(id);
     const proxied = pages.map((url: string) => ({
       img: url.startsWith('http') ? `${PROXY_BASE}${encodeURIComponent(url)}` : url,
@@ -58,6 +67,7 @@ export async function GET(request: NextRequest) {
 }
 
 const CHAPTER_PROVIDERS: Record<string, (id: string) => Promise<string[]>> = {
+  comick: comick.getChapterPages,
   mangadex: async (id: string) => {
     const { pages } = await mangadex.getChapterPages(id);
     return pages;
