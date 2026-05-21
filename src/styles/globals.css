@@ -62,7 +62,8 @@
 @layer components {
   .movie-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 185px));
+    grid-template-columns: repeat(auto-fit, minmax(140px, 185px));
+    justify-content: start;
     gap: 12px;
     width: 100%;
   }
@@ -86,7 +87,7 @@
   }
   @media (min-width: 1025px) {
     .movie-grid {
-      grid-template-columns: repeat(auto-fill, minmax(160px, 200px));
+      grid-template-columns: repeat(auto-fit, minmax(160px, 200px));
       gap: 16px;
     }
   }
