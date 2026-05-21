@@ -1,6 +1,6 @@
 'use client';
 
-import { getChapterPagesByNumber, getAdjacentChapters } from '@/api/mangadex';
+import { getChapterPagesByNumber, getAdjacentChapters } from '@/api/manga';
 import { Button, Skeleton } from '@heroui/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
@@ -19,7 +19,6 @@ interface MangaReaderProps {
 export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: MangaReaderProps) {
   const [chapterData, setChapterData] = useState<{
     pages: string[];
-    baseUrl: string;
     totalPages: number;
   } | null>(null);
   const [chapterId, setChapterId] = useState<string | null>(null);
@@ -33,8 +32,6 @@ export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: Mang
   const [loadedCount, setLoadedCount] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const chapterIdRef = useRef<string | null>(null);
-  const qualityRef = useRef<string>('data');
 
   const loadChapter = useCallback(async (title: string, chNum: number) => {
     setLoading(true);
@@ -45,18 +42,14 @@ export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: Mang
     setChapterId(null);
     setLoadedCount(0);
     setCurrentPage(1);
-    chapterIdRef.current = null;
 
     try {
       const result = await getChapterPagesByNumber(title, chNum);
       setChapterData({
         pages: result.pages,
-        baseUrl: result.baseUrl || '',
         totalPages: result.totalPages,
       });
       setChapterId(result.chapterId);
-      chapterIdRef.current = result.chapterId;
-      qualityRef.current = 'data';
       setLoading(false);
 
       getAdjacentChapters(title, chNum).then((adj) => {
@@ -75,7 +68,7 @@ export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: Mang
   }, [mangaTitle, chapterNumber, loadChapter]);
 
   const retryPages = useCallback(async (failedIndices: number[]) => {
-    const cid = chapterIdRef.current;
+    const cid = chapterId;
     if (!cid) return;
 
     setRetrying((prev) => {
@@ -85,26 +78,27 @@ export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: Mang
     });
 
     try {
-      const res = await fetch(`/api/manga/at-home/${cid}?quality=${qualityRef.current}`);
+      const res = await fetch(`/api/manga/chapter?id=${encodeURIComponent(cid)}`);
       if (!res.ok) return;
       const data = await res.json();
+      const newPageUrls: string[] = (data || []).map((p: any) => p.img).filter(Boolean);
 
       setChapterData((prev) => {
         if (!prev) return prev;
         const newPages = [...prev.pages];
         for (const idx of failedIndices) {
-          if (idx < newPages.length && idx < data.pages.length) {
-            newPages[idx] = data.pages[idx];
+          if (idx < newPages.length && idx < newPageUrls.length) {
+            newPages[idx] = newPageUrls[idx];
           }
         }
-        return { ...prev, pages: newPages, baseUrl: data.baseUrl };
+        return { ...prev, pages: newPages };
       });
     } catch {
       // retry failed
     } finally {
       setRetrying(new Set());
     }
-  }, []);
+  }, [chapterId]);
 
   const handleImageError = useCallback(
     (index: number) => {
