@@ -6,6 +6,11 @@ export const getMoviePlayers = (id: string | number, season?: number, episode?: 
 
   return [
     {
+      title: 'VidKing',
+      source: `https://player.vidplus.to/embed/anime/${id}${epPath}`,
+      recommended: true, fast: true, resumable: true,
+    },
+    {
       title: 'VidSrc',
       source: `https://vidsrc.xyz/embed/anime/${id}${epPath}`,
       recommended: true, fast: true, resumable: true,
@@ -44,6 +49,11 @@ export const getMoviePlayers = (id: string | number, season?: number, episode?: 
 };
 
 export const getTvShowPlayers = (id: string | number, season: number, episode: number, startAt?: number): PlayersProps[] => [
+  {
+    title: 'VidKing',
+    source: `https://player.vidplus.to/embed/anime/${id}/${episode}`,
+    recommended: true, fast: true, resumable: true,
+  },
   {
     title: 'VidSrc',
     source: `https://vidsrc.xyz/embed/anime/${id}/${episode}`,

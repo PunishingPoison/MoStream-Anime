@@ -7,7 +7,7 @@ import { IoInformationCircle, IoInformationCircleOutline } from 'react-icons/io5
 import { IoIosSunny } from 'react-icons/io';
 import { IoMoon } from 'react-icons/io5';
 import { HiComputerDesktop } from 'react-icons/hi2';
-import { anilist } from '@/api/anilist';
+import { tmdb } from '@/api/tmdb';
 
 export const siteConfig: SiteConfigType = {
   name: 'MoAnime',
@@ -54,44 +54,44 @@ export const siteConfig: SiteConfigType = {
     movies: [
       {
         name: "Today's Trending Anime",
-        query: () => anilist.trending.trending('movie', 'day'),
+        query: () => tmdb.trending.trending('movie', 'day'),
         param: 'todayTrending',
       },
       {
         name: "This Week's Trending Anime",
-        query: () => anilist.trending.trending('movie', 'week'),
+        query: () => tmdb.trending.trending('movie', 'week'),
         param: 'thisWeekTrending',
       },
       {
         name: 'Popular Anime',
-        query: () => anilist.anime.popular(),
+        query: () => tmdb.movies.popular(),
         param: 'popular',
       },
       {
         name: 'Top Rated Anime',
-        query: () => anilist.anime.topRated(),
+        query: () => tmdb.movies.topRated(),
         param: 'topRated',
       },
     ],
     tvShows: [
       {
         name: "Today's Trending Manga",
-        query: () => anilist.trending.trending('tv', 'day'),
+        query: () => tmdb.trending.trending('tv', 'day'),
         param: 'todayTrending',
       },
       {
         name: "This Week's Trending Manga",
-        query: () => anilist.trending.trending('tv', 'week'),
+        query: () => tmdb.trending.trending('tv', 'week'),
         param: 'thisWeekTrending',
       },
       {
         name: 'Popular Manga',
-        query: () => anilist.manga.popular(),
+        query: () => tmdb.tvShows.popular(),
         param: 'popular',
       },
       {
         name: 'Top Rated Manga',
-        query: () => anilist.manga.topRated(),
+        query: () => tmdb.tvShows.topRated(),
         param: 'topRated',
       },
     ],
