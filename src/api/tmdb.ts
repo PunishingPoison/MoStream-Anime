@@ -3,6 +3,9 @@ import { anilist } from './anilist';
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 const TMDB_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || 'd447ca2c61528a2f729802f7e8f2b028';
 
+const ANIME_GENRE_ID = '16';
+const ANIME_LANG = 'ja';
+
 let genreCache: Record<number, { id: number; name: string }> = {};
 
 async function tmdbFetch<T>(path: string, params: Record<string, string> = {}): Promise<T> {
@@ -33,6 +36,16 @@ async function loadGenres(): Promise<Record<number, { id: number; name: string }
   return genreCache;
 }
 
+function isAnime(item: any): boolean {
+  const langs = item.original_language || item.origin_country?.[0] || '';
+  const genres = item.genre_ids || [];
+  const genreNames = item.genres?.map((g: any) => (typeof g === 'string' ? g : g.name).toLowerCase()) || [];
+  return (
+    langs === ANIME_LANG &&
+    (genres.includes(Number(ANIME_GENRE_ID)) || genreNames.includes('animation') || genreNames.includes('anime'))
+  );
+}
+
 function mapListItem(item: any, mediaType: 'movie' | 'tv') {
   const isMovie = mediaType === 'movie';
   return {
@@ -52,14 +65,22 @@ function mapListItem(item: any, mediaType: 'movie' | 'tv') {
   };
 }
 
-function pageResponse(data: any, mediaType: 'movie' | 'tv') {
+function pageResponse(data: any, mediaType: 'movie' | 'tv', filterAnime = true) {
+  let results = (data?.results || []).map((r: any) => mapListItem(r, mediaType));
+  if (filterAnime) results = results.filter(isAnime);
   return {
-    results: (data?.results || []).map((r: any) => mapListItem(r, mediaType)),
+    results,
     page: data?.page || 1,
     total_pages: data?.total_pages || 1,
-    total_results: data?.total_results || 0,
+    total_results: results.length,
   };
 }
+
+const animeDiscoverParams: Record<string, string> = {
+  with_original_language: ANIME_LANG,
+  with_genres: ANIME_GENRE_ID,
+  'vote_count.gte': '10',
+};
 
 async function fetchMovieOrTvDetail(id: number, append: string[] = []) {
   const appends = ['credits', 'videos', 'images', 'recommendations', 'similar']
@@ -123,22 +144,41 @@ export const tmdb = {
     details: async (id: number, append?: string[]) => fetchMovieOrTvDetail(id, append),
     popular: async (page = 1) => {
       await loadGenres();
-      const data = await tmdbFetch<any>('/tv/popular', { page: String(page) });
+      const data = await tmdbFetch<any>('/discover/tv', {
+        ...animeDiscoverParams,
+        sort_by: 'popularity.desc',
+        page: String(page),
+      });
       return pageResponse(data, 'movie');
     },
     nowPlaying: async (page = 1) => {
       await loadGenres();
-      const data = await tmdbFetch<any>('/tv/on_the_air', { page: String(page) });
+      const data = await tmdbFetch<any>('/discover/tv', {
+        ...animeDiscoverParams,
+        sort_by: 'popularity.desc',
+        'air_date.gte': new Date(Date.now() - 30 * 86400000).toISOString().split('T')[0],
+        page: String(page),
+      });
       return pageResponse(data, 'movie');
     },
     upcoming: async (page = 1) => {
       await loadGenres();
-      const data = await tmdbFetch<any>('/tv/airing_today', { page: String(page) });
+      const data = await tmdbFetch<any>('/discover/tv', {
+        ...animeDiscoverParams,
+        sort_by: 'popularity.desc',
+        'air_date.gte': new Date().toISOString().split('T')[0],
+        page: String(page),
+      });
       return pageResponse(data, 'movie');
     },
     topRated: async (page = 1) => {
       await loadGenres();
-      const data = await tmdbFetch<any>('/tv/top_rated', { page: String(page) });
+      const data = await tmdbFetch<any>('/discover/tv', {
+        ...animeDiscoverParams,
+        sort_by: 'vote_average.desc',
+        'vote_count.gte': '50',
+        page: String(page),
+      });
       return pageResponse(data, 'movie');
     },
     seasonDetails: async (id: number, season: number) => {
@@ -192,10 +232,10 @@ export const tmdb = {
       const filtered = {
         ...data,
         results: (data.results || []).filter(
-          (r: any) => r.media_type === 'movie' || r.media_type === 'tv'
+          (r: any) => (r.media_type === 'movie' || r.media_type === 'tv') && isAnime(r)
         ),
       };
-      return pageResponse(filtered, 'movie');
+      return pageResponse(filtered, 'movie', false);
     },
     tvShows: (query: string, page = 1) => anilist.search.manga(query, page),
     multi: async (query: string, page = 1) => {
@@ -214,19 +254,16 @@ export const tmdb = {
   discover: {
     movie: async (params: Record<string, string>) => {
       await loadGenres();
-      const sortMap: Record<string, string> = {
-        popularity: 'popularity.desc',
-        vote_average: 'vote_average.desc',
-        primary_release_date: 'primary_release_date.desc',
-      };
-      const sortBy = sortMap[params.sort_by] || 'popularity.desc';
+      const sortBy = params.sort_by?.includes('vote_average') ? 'vote_average.desc' : 'popularity.desc';
       const queryParams: Record<string, string> = {
+        ...animeDiscoverParams,
         sort_by: sortBy,
         page: params.page || '1',
-        with_genres: params.with_genres || '',
-        'vote_count.gte': '50',
+        'vote_count.gte': params.sort_by?.includes('vote_average') ? '50' : '10',
       };
-      Object.keys(queryParams).forEach(k => { if (!queryParams[k]) delete queryParams[k]; });
+      if (params.with_genres) {
+        queryParams.with_genres = `${ANIME_GENRE_ID},${params.with_genres}`;
+      }
       const data = await tmdbFetch<any>('/discover/tv', queryParams);
       return pageResponse(data, 'movie');
     },
