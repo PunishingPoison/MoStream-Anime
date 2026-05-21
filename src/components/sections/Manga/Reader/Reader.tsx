@@ -156,7 +156,7 @@ export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: Mang
 
   return (
     <div ref={scrollRef} onScroll={handleScroll} className="min-h-screen bg-black overflow-y-auto">
-      <div className="sticky top-0 z-30 flex items-center justify-between bg-gradient-to-b from-black/90 via-black/60 to-transparent px-4 py-4">
+      <div className="fixed top-0 left-0 right-0 z-30 flex items-center justify-between bg-gradient-to-b from-black/90 via-black/60 to-transparent px-4 py-4 transition-transform duration-300">
         <div className="flex items-center gap-3">
           <Button
             isIconOnly
@@ -205,7 +205,7 @@ export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: Mang
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-1 pb-12">
+      <div className="flex flex-col items-center gap-1 pt-20 pb-24">
         {pages.map((pageUrl, index) => {
           const isPreload = index <= loadedCount + PRELOAD_COUNT;
           const isFailed = failedPages.has(index);
@@ -252,7 +252,7 @@ export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: Mang
         })}
       </div>
 
-      <div className="sticky bottom-0 z-30 flex flex-col items-center gap-2 bg-gradient-to-t from-black/90 via-black/60 to-transparent px-4 py-4">
+      <div className="fixed bottom-0 left-0 right-0 z-30 flex flex-col items-center gap-2 bg-gradient-to-t from-black/90 via-black/60 to-transparent px-4 py-4 transition-transform duration-300">
         <span className="sm:hidden text-xs text-white/60 tabular-nums">
           <FaCheck className="inline mr-1 text-green-400" size={10} />
           Page {currentPage}/{totalPages}
