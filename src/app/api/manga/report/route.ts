@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
     const mdRes = await fetch(TELEMETRY_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'User-Agent': 'MoStream-Anime/1.0' },
       body: JSON.stringify(payload),
     });
 

@@ -13,7 +13,7 @@ async function sendQosReport(payload: {
   try {
     await fetch(TELEMETRY_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'User-Agent': 'MoStream-Anime/1.0' },
       body: JSON.stringify(payload),
     });
   } catch {
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const baseUrl = new URL(base);
-    const allowed = ALLOWED_DOMAINS.some((d) => baseUrl.hostname.endsWith(d));
+    const allowed = ALLOWED_DOMAINS.some((d) => baseUrl.hostname === d || baseUrl.hostname.endsWith('.' + d));
     if (!allowed) {
       return NextResponse.json({ error: 'Forbidden: invalid image domain' }, { status: 403 });
     }

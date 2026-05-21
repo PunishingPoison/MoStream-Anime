@@ -198,9 +198,9 @@ export async function findChapterByNumber(
   mangaId: string,
   chapterNumber: number
 ): Promise<MdChapterResult | null> {
-  const { chapters } = await getMangaChapters(mangaId, 'en', 0, 100);
-  if (!chapters.length) return null;
-  const sorted = [...chapters].sort((a, b) => {
+  const allChapters = await getAllChapters(mangaId);
+  if (!allChapters.length) return null;
+  const sorted = [...allChapters].sort((a, b) => {
     const diff = Math.abs(a.chapterNumber - chapterNumber) - Math.abs(b.chapterNumber - chapterNumber);
     return diff;
   });

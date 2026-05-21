@@ -9,20 +9,11 @@ import { IoChevronBack } from 'react-icons/io5';
 import { BiError } from 'react-icons/bi';
 
 const PRELOAD_COUNT = 3;
-const REPORT_URL = '/api/manga/report';
 
 interface MangaReaderProps {
   mangaTitle: string;
   mangaId: number;
   chapterNumber: number;
-}
-
-function reportQos(url: string, success: boolean, bytes = 0, duration = 0, cached = false) {
-  fetch(REPORT_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url, success, bytes, duration, cached }),
-  }).catch(() => {});
 }
 
 export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: MangaReaderProps) {
@@ -43,6 +34,7 @@ export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: Mang
   const scrollRef = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const chapterIdRef = useRef<string | null>(null);
+  const qualityRef = useRef<string>('data');
 
   const loadChapter = useCallback(async (title: string, chNum: number) => {
     setLoading(true);
@@ -64,6 +56,7 @@ export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: Mang
       });
       setChapterId(result.chapterId);
       chapterIdRef.current = result.chapterId;
+      qualityRef.current = 'data';
       setLoading(false);
 
       getAdjacentChapters(title, chNum).then((adj) => {
@@ -92,7 +85,7 @@ export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: Mang
     });
 
     try {
-      const res = await fetch(`/api/manga/at-home/${cid}?quality=data`);
+      const res = await fetch(`/api/manga/at-home/${cid}?quality=${qualityRef.current}`);
       if (!res.ok) return;
       const data = await res.json();
 
@@ -114,8 +107,7 @@ export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: Mang
   }, []);
 
   const handleImageError = useCallback(
-    (index: number, pageUrl: string) => {
-      reportQos(pageUrl, false);
+    (index: number) => {
       setFailedPages((prev) => new Set(prev).add(index));
       retryPages([index]);
     },
@@ -123,9 +115,8 @@ export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: Mang
   );
 
   const handleImageLoad = useCallback(
-    (index: number, pageUrl: string) => {
+    (index: number) => {
       setLoadedCount((prev) => Math.max(prev, index + 1));
-      reportQos(pageUrl, true);
     },
     []
   );
@@ -257,8 +248,8 @@ export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: Mang
                     alt={`Page ${index + 1}`}
                     className={`w-full h-auto ${isRetrying ? 'hidden' : ''}`}
                     loading={isPreload ? 'eager' : 'lazy'}
-                    onError={() => handleImageError(index, pageUrl)}
-                    onLoad={() => handleImageLoad(index, pageUrl)}
+                    onError={() => handleImageError(index)}
+                    onLoad={() => handleImageLoad(index)}
                   />
                 </>
               )}
