@@ -13,7 +13,7 @@ interface MangaReaderProps {
   chapterNumber: number;
 }
 
-export default function MangaReader({ mangaTitle, chapterNumber }: MangaReaderProps) {
+export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: MangaReaderProps) {
   const [pages, setPages] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
