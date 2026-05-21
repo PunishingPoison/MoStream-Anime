@@ -5,6 +5,8 @@ import * as kitsu from '@/lib/providers/kitsu';
 import * as mangahook from '@/lib/providers/mangahook';
 import { mangaCache } from '@/lib/cache';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
@@ -15,7 +17,7 @@ export async function GET(request: NextRequest) {
   }
 
   const isTitle = searchParams.get('isTitle') === 'true';
-  const cacheKey = `manga-info-${provider || 'auto'}-${id}-${isTitle}`;
+  const cacheKey = `manga-info-v2-${provider || 'auto'}-${id}-${isTitle}`;
 
   try {
     const data = await mangaCache.getOrFetch(cacheKey, async () => {
