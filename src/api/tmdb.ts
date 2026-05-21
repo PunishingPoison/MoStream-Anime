@@ -1,7 +1,7 @@
 import { anilist } from './anilist';
 
 const TMDB_BASE = 'https://api.themoviedb.org/3';
-const TMDB_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || '';
+const TMDB_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || 'd447ca2c61528a2f729802f7e8f2b028';
 
 let genreCache: Record<number, { id: number; name: string }> = {};
 
