@@ -184,7 +184,7 @@ export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: Mang
                 variant="flat"
                 className="text-white bg-white/10 backdrop-blur-sm hover:bg-white/20"
                 as={Link}
-                href={`/tv/${mangaId}/player?season=1&episode=${Math.floor(prevChapter.num)}`}
+                href={`/tv/${mangaId}/player?season=1&episode=${prevChapter.num}`}
               >
                 <FaChevronLeft size={14} />
               </Button>
@@ -196,7 +196,7 @@ export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: Mang
                 variant="flat"
                 className="text-white bg-white/10 backdrop-blur-sm hover:bg-white/20"
                 as={Link}
-                href={`/tv/${mangaId}/player?season=1&episode=${Math.floor(nextChapter.num)}`}
+                href={`/tv/${mangaId}/player?season=1&episode=${nextChapter.num}`}
               >
                 <FaChevronRight size={14} />
               </Button>
@@ -264,7 +264,7 @@ export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: Mang
               variant="flat"
               color="warning"
               as={Link}
-              href={`/tv/${mangaId}/player?season=1&episode=${Math.floor(prevChapter.num)}`}
+              href={`/tv/${mangaId}/player?season=1&episode=${prevChapter.num}`}
               startContent={<FaChevronLeft size={14} />}
             >
               Prev
@@ -276,7 +276,7 @@ export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: Mang
               variant="flat"
               color="warning"
               as={Link}
-              href={`/tv/${mangaId}/player?season=1&episode=${Math.floor(nextChapter.num)}`}
+              href={`/tv/${mangaId}/player?season=1&episode=${nextChapter.num}`}
               endContent={<FaChevronRight size={14} />}
             >
               Next

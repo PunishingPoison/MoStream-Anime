@@ -376,6 +376,50 @@ export const anilist = {
     seasonDetails: async (id: number, season: number) => {
       const data = await graphql<any>(DETAIL_QUERY, { id, type: 'MANGA' });
       const m = data?.Media;
+      const title = m?.title?.userPreferred || m?.title?.romaji || m?.title?.english || '';
+      
+      let realChapters = [];
+      try {
+        if (title) {
+          const res = await fetch(`/api/manga/info?id=${encodeURIComponent(title)}&provider=mangadex&isTitle=true`);
+          if (res.ok) {
+            const result = await res.json();
+            if (result.chapters && result.chapters.length > 0) {
+              realChapters = result.chapters;
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Failed to fetch real chapters', e);
+      }
+
+      if (realChapters.length > 0) {
+        // Group chapters by volume or sort them if needed
+        realChapters.sort((a: any, b: any) => a.chapterNumber - b.chapterNumber);
+        
+        // MangaDex doesn't always have strict season/volume mapping we can trust blindly
+        // For simplicity, we just paginate them across 'seasons' (volumes) artificially if needed,
+        // or just return all chapters if season === 1.
+        // AniList creates pseudo-volumes based on m.volumes. Let's chunk them.
+        const chPerVol = Math.ceil(realChapters.length / Math.max(m?.volumes || 1, 1));
+        const startIdx = (season - 1) * chPerVol;
+        const endIdx = startIdx + chPerVol;
+        const chunk = realChapters.slice(startIdx, endIdx);
+
+        const episodes = chunk.map((ch: any) => ({
+          id: ch.id,
+          name: ch.title || `Chapter ${ch.chapterNumber}`,
+          episode_number: ch.chapterNumber,
+          season_number: season,
+          still_path: m?.coverImage?.large || '',
+          overview: ch.title || `Chapter ${ch.chapterNumber} of ${m?.title?.romaji || ''}`,
+          air_date: m?.startDate?.year ? `${m.startDate.year}-01-01` : '',
+        }));
+
+        return { episodes };
+      }
+
+      // Fallback to fake chapters if API fails
       const chPerVol = Math.ceil((m?.chapters || m?.episodes || 100) / Math.max(m?.volumes || 1, 1));
       const startEp = (season - 1) * chPerVol + 1;
       const endEp = Math.min(season * chPerVol, m?.chapters || m?.episodes || 100);

@@ -8,12 +8,12 @@ import { Button, Skeleton } from '@heroui/react';
 import { useQuery } from '@tanstack/react-query';
 import { notFound } from 'next/navigation';
 import { use } from 'react';
-import { parseAsInteger, useQueryState } from 'nuqs';
+import { parseAsFloat, useQueryState } from 'nuqs';
 import { mutateTvShowTitle } from '@/utils/movies';
 
 export default function TvPlayerPage({ params }: Params<{ id: number }>) {
   const { id } = use(params);
-  const [episode] = useQueryState('episode', parseAsInteger.withDefault(1));
+  const [episode] = useQueryState('episode', parseAsFloat.withDefault(1));
 
   const { data: tv, isPending, error, refetch } = useQuery<any>({
     queryFn: () => tmdb.tvShows.details(id),

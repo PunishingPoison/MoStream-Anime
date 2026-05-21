@@ -50,24 +50,32 @@ export async function getChapterPagesByNumber(
   mangaTitle: string,
   chapterNumber: number
 ) {
-  const manga = await searchManga(mangaTitle);
-  if (!manga) throw new Error(`Manga "${mangaTitle}" not found`);
+  const infoRes = await fetch(`${API_BASE}/info?id=${encodeURIComponent(mangaTitle)}&provider=mangadex&isTitle=true`);
+  if (!infoRes.ok) throw new Error(`Failed to fetch info for "${mangaTitle}"`);
+  const info = await infoRes.json();
+  if (!info || !info.chapters || info.chapters.length === 0) {
+    throw new Error(`No chapters found for "${mangaTitle}"`);
+  }
 
-  const chapters = await getMangaChapters(manga.id);
-  if (!chapters.length) throw new Error(`No chapters found for "${mangaTitle}"`);
-
-  const sorted = [...chapters].sort((a, b) => {
-    const diff = Math.abs(a.chapterNumber - chapterNumber) - Math.abs(b.chapterNumber - chapterNumber);
-    return diff;
-  });
-  const chapter = sorted[0];
+  const chapters = info.chapters;
+  
+  // exact match first
+  let chapter = chapters.find((c: any) => Math.abs(c.chapterNumber - chapterNumber) < 0.001);
+  if (!chapter) {
+    // nearest match
+    const sorted = [...chapters].sort((a, b) => {
+      const diff = Math.abs(a.chapterNumber - chapterNumber) - Math.abs(b.chapterNumber - chapterNumber);
+      return diff;
+    });
+    chapter = sorted[0];
+  }
   if (!chapter) throw new Error(`Chapter ${chapterNumber} not found for "${mangaTitle}"`);
 
   const pages = await getChapterPages(chapter.id);
   if (!pages.length) throw new Error(`No pages found for chapter ${chapterNumber}`);
 
   return {
-    mangaTitle: manga.title,
+    mangaTitle: info.title || mangaTitle,
     chapterId: chapter.id,
     chapterNumber: chapter.chapterNumber,
     chapterTitle: chapter.title || `Chapter ${chapter.chapterNumber}`,
@@ -80,18 +88,31 @@ export async function getAdjacentChapters(
   mangaTitle: string,
   chapterNumber: number
 ): Promise<{ prev: { id: string; num: number } | null; next: { id: string; num: number } | null }> {
-  const manga = await searchManga(mangaTitle);
-  if (!manga) return { prev: null, next: null };
+  try {
+    const infoRes = await fetch(`${API_BASE}/info?id=${encodeURIComponent(mangaTitle)}&provider=mangadex&isTitle=true`);
+    if (!infoRes.ok) return { prev: null, next: null };
+    const info = await infoRes.json();
+    if (!info || !info.chapters || info.chapters.length === 0) {
+      return { prev: null, next: null };
+    }
 
-  const chapters = await getMangaChapters(manga.id);
-  if (!chapters.length) return { prev: null, next: null };
+    const chapters = info.chapters;
+    const sorted = [...chapters].sort((a: any, b: any) => a.chapterNumber - b.chapterNumber);
+    
+    // Find the exact chapter or nearest
+    let idx = sorted.findIndex((c) => Math.abs(c.chapterNumber - chapterNumber) < 0.001);
+    if (idx === -1) {
+      const nearest = [...chapters].sort((a, b) => Math.abs(a.chapterNumber - chapterNumber) - Math.abs(b.chapterNumber - chapterNumber))[0];
+      idx = sorted.findIndex(c => c.id === nearest.id);
+    }
+    
+    if (idx === -1) return { prev: null, next: null };
 
-  const sorted = [...chapters].sort((a, b) => a.chapterNumber - b.chapterNumber);
-  const idx = sorted.findIndex((c) => c.chapterNumber === chapterNumber);
-  if (idx === -1) return { prev: null, next: null };
-
-  return {
-    prev: idx > 0 ? { id: sorted[idx - 1].id, num: sorted[idx - 1].chapterNumber } : null,
-    next: idx < sorted.length - 1 ? { id: sorted[idx + 1].id, num: sorted[idx + 1].chapterNumber } : null,
-  };
+    return {
+      prev: idx > 0 ? { id: sorted[idx - 1].id, num: sorted[idx - 1].chapterNumber } : null,
+      next: idx < sorted.length - 1 ? { id: sorted[idx + 1].id, num: sorted[idx + 1].chapterNumber } : null,
+    };
+  } catch {
+    return { prev: null, next: null };
+  }
 }

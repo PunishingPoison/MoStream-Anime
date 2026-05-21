@@ -3,6 +3,7 @@ import * as mangadex from '@/lib/providers/mangadex';
 import * as consumet from '@/lib/providers/consumet';
 import * as kitsu from '@/lib/providers/kitsu';
 import * as mangahook from '@/lib/providers/mangahook';
+import { mangaCache } from '@/lib/cache';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -13,8 +14,23 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Missing query param: id' }, { status: 400 });
   }
 
+  const isTitle = searchParams.get('isTitle') === 'true';
+  let targetId = id;
+
+  const cacheKey = `manga-info-${provider}-${id}-${isTitle}`;
+
   if (provider === 'mangadex') {
-    const info = await mangadex.getMangaInfo(id);
+    const info = await mangaCache.getOrFetch(cacheKey, async () => {
+      if (isTitle) {
+        const searchRes = await mangadex.searchManga(id);
+        if (searchRes.length > 0) {
+          targetId = searchRes[0].id;
+        } else {
+          return { id, title: id, chapters: [] };
+        }
+      }
+      return await mangadex.getMangaInfo(targetId);
+    });
     return NextResponse.json(info);
   }
   if (provider === 'kitsu') {
