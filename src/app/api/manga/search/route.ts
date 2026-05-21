@@ -10,9 +10,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const MangaKakalot = (await import('@consumet/extensions/dist/providers/manga/mangakakalot')).default;
-    const provider = new MangaKakalot();
-    const result = await provider.search(query, page);
+    const Comick = (await import('@consumet/extensions/dist/providers/manga/comick')).default;
+    const provider = new Comick();
+    const result = await provider.search(query, page.toString());
     return NextResponse.json(result);
   } catch (err: any) {
     console.error('Manga search error:', err);

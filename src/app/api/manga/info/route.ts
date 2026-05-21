@@ -9,8 +9,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const MangaKakalot = (await import('@consumet/extensions/dist/providers/manga/mangakakalot')).default;
-    const provider = new MangaKakalot();
+    const Comick = (await import('@consumet/extensions/dist/providers/manga/comick')).default;
+    const provider = new Comick();
     const result = await provider.fetchMangaInfo(id);
     return NextResponse.json(result);
   } catch (err: any) {

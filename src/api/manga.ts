@@ -12,14 +12,6 @@ interface MangaResult {
   image?: string;
 }
 
-function extractChapterNumber(title: string): number {
-  const match = title.match(/(?:Ch\.|Chapter|Chapitre|Capítulo|Capitulo)\s*(\d+(?:\.\d+)?)/i);
-  if (match) return parseFloat(match[1]);
-  const numMatch = title.match(/^(\d+(?:\.\d+)?)/);
-  if (numMatch) return parseFloat(numMatch[1]);
-  return 0;
-}
-
 async function searchManga(query: string): Promise<MangaResult | null> {
   const res = await fetch(`${API_BASE}/search?q=${encodeURIComponent(query)}`);
   if (!res.ok) return null;
@@ -42,8 +34,8 @@ async function getMangaChapters(mangaId: string): Promise<MangaChapter[]> {
   const data = await res.json();
   return (data.chapters || []).map((ch: any) => ({
     id: ch.id,
-    title: ch.title || '',
-    chapterNumber: extractChapterNumber(ch.title || ''),
+    title: ch.title || `Chapter ${ch.chapterNumber}`,
+    chapterNumber: ch.chapterNumber ?? 0,
   }));
 }
 

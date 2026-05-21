@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+const PROXY_BASE = '/api/manga/proxy?url=';
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
@@ -9,10 +11,16 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const MangaKakalot = (await import('@consumet/extensions/dist/providers/manga/mangakakalot')).default;
-    const provider = new MangaKakalot();
+    const Comick = (await import('@consumet/extensions/dist/providers/manga/comick')).default;
+    const provider = new Comick();
     const result = await provider.fetchChapterPages(id);
-    return NextResponse.json(result);
+
+    const proxied = (result || []).map((p: any) => ({
+      ...p,
+      img: p.img ? `${PROXY_BASE}${encodeURIComponent(p.img)}` : p.img,
+    }));
+
+    return NextResponse.json(proxied);
   } catch (err: any) {
     console.error('Manga chapter error:', err);
     return NextResponse.json({ error: err.message || 'Failed to fetch chapter pages' }, { status: 500 });
