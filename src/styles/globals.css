@@ -62,31 +62,31 @@
 @layer components {
   .movie-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(140px, 185px));
     gap: 12px;
     width: 100%;
   }
   @media (max-width: 480px) {
     .movie-grid {
-      grid-template-columns: repeat(2, minmax(130px, 1fr));
+      grid-template-columns: repeat(2, minmax(120px, 155px));
       gap: 8px;
     }
   }
   @media (min-width: 481px) and (max-width: 640px) {
     .movie-grid {
-      grid-template-columns: repeat(2, minmax(160px, 1fr));
+      grid-template-columns: repeat(2, minmax(140px, 175px));
       gap: 10px;
     }
   }
   @media (min-width: 641px) and (max-width: 1024px) {
     .movie-grid {
-      grid-template-columns: repeat(3, minmax(175px, 1fr));
+      grid-template-columns: repeat(3, minmax(155px, 185px));
       gap: 14px;
     }
   }
   @media (min-width: 1025px) {
     .movie-grid {
-      grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(160px, 200px));
       gap: 16px;
     }
   }
