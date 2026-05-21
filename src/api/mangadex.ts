@@ -166,21 +166,19 @@ export async function getChapterPages(
   pageFiles: string[];
   totalPages: number;
 }> {
-  const data = await mdFetch<any>(`/at-home/server/${chapterId}`);
-  const baseUrl = data.baseUrl;
-  const hash = data.chapter.hash;
-  const pageFiles = useDataSaver ? data.chapter.dataSaver : data.chapter.data;
   const quality = useDataSaver ? 'data-saver' : 'data';
-  const proxyBase = '/api/manga/proxy';
+  const res = await fetch(`/api/manga/at-home/${chapterId}?quality=${quality}`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(err.error || `Failed to get chapter pages: ${res.status}`);
+  }
+  const data = await res.json();
   return {
-    baseUrl,
-    chapterHash: hash,
-    pageFiles,
-    totalPages: pageFiles.length,
-    pages: (pageFiles || []).map(
-      (f: string) =>
-        `${proxyBase}?base=${encodeURIComponent(baseUrl)}&hash=${hash}&quality=${quality}&file=${f}`
-    ),
+    baseUrl: data.baseUrl,
+    chapterHash: data.hash,
+    pageFiles: data.pageFiles,
+    totalPages: data.totalPages,
+    pages: data.pages,
   };
 }
 
