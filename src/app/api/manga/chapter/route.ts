@@ -1,28 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server';
+import * as mangadex from '@/lib/providers/mangadex';
+import * as consumet from '@/lib/providers/consumet';
+import * as mangahook from '@/lib/providers/mangahook';
 
 const PROXY_BASE = '/api/manga/proxy?url=';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
+  const provider = searchParams.get('provider');
 
   if (!id) {
     return NextResponse.json({ error: 'Missing query param: id' }, { status: 400 });
   }
 
-  try {
-    const Comick = (await import('@consumet/extensions/dist/providers/manga/comick')).default;
-    const provider = new Comick();
-    const result = await provider.fetchChapterPages(id);
-
-    const proxied = (result || []).map((p: any) => ({
-      ...p,
-      img: p.img ? `${PROXY_BASE}${encodeURIComponent(p.img)}` : p.img,
+  if (provider === 'mangadex') {
+    const { pages } = await mangadex.getChapterPages(id);
+    const proxied = pages.map((url: string) => ({
+      img: url,
+      page: 0,
     }));
-
     return NextResponse.json(proxied);
-  } catch (err: any) {
-    console.error('Manga chapter error:', err);
-    return NextResponse.json({ error: err.message || 'Failed to fetch chapter pages' }, { status: 500 });
   }
+  if (provider === 'mangahook') {
+    const pages = await mangahook.getChapterPages(id);
+    const proxied = pages.map((url: string) => ({
+      img: url.startsWith('http') ? `${PROXY_BASE}${encodeURIComponent(url)}` : url,
+      page: 0,
+    }));
+    return NextResponse.json(proxied);
+  }
+  if (provider === 'consumet' || provider === 'comick' || provider === 'mangahere' || provider === 'mangapill') {
+    const pages = await consumet.getChapterPages(id);
+    const proxied = pages.map((url: string) => ({
+      img: url.startsWith('http') ? `${PROXY_BASE}${encodeURIComponent(url)}` : url,
+      page: 0,
+    }));
+    return NextResponse.json(proxied);
+  }
+
+  const errors: string[] = [];
+  for (const [name, fn] of Object.entries(CHAPTER_PROVIDERS)) {
+    try {
+      const pages = await fn(id);
+      const proxied = pages.map((url: string) => ({
+        img: url.startsWith('http') ? `${PROXY_BASE}${encodeURIComponent(url)}` : url,
+        page: 0,
+      }));
+      if (proxied.length > 0) {
+        return NextResponse.json(proxied);
+      }
+    } catch (e: any) {
+      errors.push(`${name}: ${e.message}`);
+    }
+  }
+  return NextResponse.json([], { status: 200 });
 }
+
+const CHAPTER_PROVIDERS: Record<string, (id: string) => Promise<string[]>> = {
+  mangadex: async (id: string) => {
+    const { pages } = await mangadex.getChapterPages(id);
+    return pages;
+  },
+  mangahook: mangahook.getChapterPages,
+  consumet: consumet.getChapterPages,
+};
