@@ -381,7 +381,13 @@ export const anilist = {
       let realChapters = [];
       try {
         if (title) {
-          const res = await fetch(`/api/manga/info?id=${encodeURIComponent(title)}&provider=mangadex&isTitle=true`);
+          const isServer = typeof window === 'undefined';
+          const host = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3005');
+          const apiUrl = isServer 
+            ? `${host}/api/manga/info?id=${encodeURIComponent(title)}&isTitle=true`
+            : `/api/manga/info?id=${encodeURIComponent(title)}&isTitle=true`;
+          
+          const res = await fetch(apiUrl);
           if (res.ok) {
             const result = await res.json();
             if (result.chapters && result.chapters.length > 0) {

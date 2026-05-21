@@ -39,8 +39,9 @@ async function getMangaChapters(mangaId: string): Promise<MangaChapter[]> {
   }));
 }
 
-async function getChapterPages(chapterId: string): Promise<string[]> {
-  const res = await fetch(`${API_BASE}/chapter?id=${encodeURIComponent(chapterId)}`);
+export async function getChapterPages(chapterId: string, provider?: string): Promise<string[]> {
+  const url = provider ? `${API_BASE}/chapter?id=${encodeURIComponent(chapterId)}&provider=${provider}` : `${API_BASE}/chapter?id=${encodeURIComponent(chapterId)}`;
+  const res = await fetch(url);
   if (!res.ok) return [];
   const data = await res.json();
   return (data || []).map((p: any) => p.img).filter(Boolean);
@@ -50,7 +51,11 @@ export async function getChapterPagesByNumber(
   mangaTitle: string,
   chapterNumber: number
 ) {
-  const infoRes = await fetch(`${API_BASE}/info?id=${encodeURIComponent(mangaTitle)}&provider=mangadex&isTitle=true`);
+  const isServer = typeof window === 'undefined';
+  const host = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3005');
+  const apiUrl = isServer ? `${host}${API_BASE}/info?id=${encodeURIComponent(mangaTitle)}&isTitle=true` : `${API_BASE}/info?id=${encodeURIComponent(mangaTitle)}&isTitle=true`;
+
+  const infoRes = await fetch(apiUrl);
   if (!infoRes.ok) throw new Error(`Failed to fetch info for "${mangaTitle}"`);
   const info = await infoRes.json();
   if (!info || !info.chapters || info.chapters.length === 0) {
@@ -71,7 +76,7 @@ export async function getChapterPagesByNumber(
   }
   if (!chapter) throw new Error(`Chapter ${chapterNumber} not found for "${mangaTitle}"`);
 
-  const pages = await getChapterPages(chapter.id);
+  const pages = await getChapterPages(chapter.id, info.provider);
   if (!pages.length) throw new Error(`No pages found for chapter ${chapterNumber}`);
 
   return {
@@ -89,7 +94,11 @@ export async function getAdjacentChapters(
   chapterNumber: number
 ): Promise<{ prev: { id: string; num: number } | null; next: { id: string; num: number } | null }> {
   try {
-    const infoRes = await fetch(`${API_BASE}/info?id=${encodeURIComponent(mangaTitle)}&provider=mangadex&isTitle=true`);
+    const isServer = typeof window === 'undefined';
+    const host = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3005');
+    const apiUrl = isServer ? `${host}${API_BASE}/info?id=${encodeURIComponent(mangaTitle)}&isTitle=true` : `${API_BASE}/info?id=${encodeURIComponent(mangaTitle)}&isTitle=true`;
+    
+    const infoRes = await fetch(apiUrl);
     if (!infoRes.ok) return { prev: null, next: null };
     const info = await infoRes.json();
     if (!info || !info.chapters || info.chapters.length === 0) {

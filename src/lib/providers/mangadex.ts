@@ -57,7 +57,7 @@ export async function getMangaInfo(id: string): Promise<MdMangaInfo> {
     `/manga/${id}/feed?limit=500&translatedLanguage[]=en&order[chapter]=desc&contentRating[]=safe&contentRating[]=suggestive&includes[]=scanlation_group`
   );
   const chapters: MdChapter[] = (feed.data || [])
-    .filter((c: any) => !c.attributes?.isUnavailable)
+    .filter((c: any) => !c.attributes?.isUnavailable && !c.attributes?.externalUrl && c.attributes?.pages > 0)
     .map((c: any) => ({
       id: c.id,
       chapterNumber: parseFloat(c.attributes?.chapter) || 0,

@@ -15,60 +15,70 @@ export async function GET(request: NextRequest) {
   }
 
   const isTitle = searchParams.get('isTitle') === 'true';
-  let targetId = id;
+  const cacheKey = `manga-info-${provider || 'auto'}-${id}-${isTitle}`;
 
-  const cacheKey = `manga-info-${provider}-${id}-${isTitle}`;
-
-  if (provider === 'mangadex') {
-    const info = await mangaCache.getOrFetch(cacheKey, async () => {
+  return await mangaCache.getOrFetch(cacheKey, async () => {
+    let targetProvider = provider;
+    
+    // Helper to get info from a specific provider, resolving title if needed
+    const fetchFromProvider = async (pName: string, queryId: string) => {
+      let resolvedId = queryId;
       if (isTitle) {
-        const searchRes = await mangadex.searchManga(id);
-        if (searchRes.length > 0) {
-          targetId = searchRes[0].id;
-        } else {
-          return { id, title: id, chapters: [] };
+        if (pName === 'mangadex') {
+          const res = await mangadex.searchManga(queryId);
+          if (res.length > 0) resolvedId = res[0].id;
+          else return null;
+        } else if (pName === 'consumet' || pName === 'comick') {
+          const res = await consumet.searchManga(queryId);
+          if (res.length > 0) resolvedId = res[0].id;
+          else return null;
+        } else if (pName === 'mangahook') {
+          const res = await mangahook.searchManga(queryId);
+          if (res.length > 0) resolvedId = res[0].id;
+          else return null;
+        } else if (pName === 'kitsu') {
+          const res = await kitsu.searchManga(queryId);
+          if (res.length > 0) resolvedId = res[0].id;
+          else return null;
         }
       }
-      return await mangadex.getMangaInfo(targetId);
-    });
-    return NextResponse.json(info);
-  }
-  if (provider === 'kitsu') {
-    const chapters = await kitsu.getMangaChapters(id);
-    return NextResponse.json({ id, title: '', chapters });
-  }
-  if (provider === 'mangahook') {
-    const info = await mangahook.getMangaInfo(id);
-    return NextResponse.json({ id, ...info });
-  }
-  if (provider === 'consumet' || provider === 'comick' || provider === 'mangahere' || provider === 'mangapill') {
-    const chapters = await consumet.getMangaChapters(id, provider);
-    return NextResponse.json({ id, title: '', chapters });
-  }
 
-  const errors: string[] = [];
-  for (const [name, fn] of Object.entries(INFO_PROVIDERS)) {
-    try {
-      const result = await fn(id);
-      if (result.chapters && result.chapters.length > 0) {
-        return NextResponse.json({ ...result, provider: name });
+      let info;
+      if (pName === 'mangadex') info = await mangadex.getMangaInfo(resolvedId);
+      else if (pName === 'mangahook') info = { id: resolvedId, ...(await mangahook.getMangaInfo(resolvedId)) };
+      else if (pName === 'consumet' || pName === 'comick') info = { id: resolvedId, title: '', chapters: await consumet.getMangaChapters(resolvedId, pName) };
+      else if (pName === 'kitsu') info = { id: resolvedId, title: '', chapters: await kitsu.getMangaChapters(resolvedId) };
+      
+      if (info && info.chapters && info.chapters.length > 0) {
+        return { ...info, provider: pName };
       }
-    } catch (e: any) {
-      errors.push(`${name}: ${e.message}`);
-    }
-  }
-  return NextResponse.json({ id, title: '', chapters: [], errors }, { status: 200 });
-}
+      return null;
+    };
 
-const INFO_PROVIDERS: Record<string, (id: string) => Promise<any>> = {
-  mangadex: mangadex.getMangaInfo,
-  kitsu: async (id: string) => {
-    const chapters = await kitsu.getMangaChapters(id);
-    return { id, title: '', chapters };
-  },
-  mangahook: mangahook.getMangaInfo,
-  consumet: async (id: string) => {
-    const chapters = await consumet.getMangaChapters(id);
-    return { id, title: '', chapters };
-  },
-};
+    if (targetProvider) {
+      const result = await fetchFromProvider(targetProvider, id);
+      if (result) return NextResponse.json(result);
+    } else {
+      // Try MangaDex first
+      try {
+        const mdResult = await fetchFromProvider('mangadex', id);
+        if (mdResult) return NextResponse.json(mdResult);
+      } catch {}
+      
+      // Fallbacks
+      const fallbacks = ['consumet', 'mangahook'];
+      const errors: string[] = [];
+      for (const pName of fallbacks) {
+        try {
+          const result = await fetchFromProvider(pName, id);
+          if (result) return NextResponse.json(result);
+        } catch (e: any) {
+          errors.push(`${pName}: ${e.message}`);
+        }
+      }
+      return NextResponse.json({ id, title: isTitle ? id : '', chapters: [], errors }, { status: 200 });
+    }
+    
+    return NextResponse.json({ id, title: isTitle ? id : '', chapters: [] }, { status: 200 });
+  });
+}
