@@ -63,7 +63,7 @@
   .movie-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 185px));
-    justify-content: start;
+    justify-content: center;
     gap: 12px;
     width: 100%;
   }

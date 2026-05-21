@@ -92,7 +92,7 @@ const SearchList = () => {
       />
       {triggered && (
         <>
-          <div className="relative flex flex-col items-center gap-8">
+          <div className="relative flex flex-col gap-8 w-full">
             {isPending ? (
               <Spinner size="lg" className="absolute-center mt-56" color={content === 'movie' ? 'primary' : 'warning'} variant="simple" />
             ) : (
