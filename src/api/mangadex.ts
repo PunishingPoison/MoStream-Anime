@@ -170,13 +170,17 @@ export async function getChapterPages(
   const baseUrl = data.baseUrl;
   const hash = data.chapter.hash;
   const pageFiles = useDataSaver ? data.chapter.dataSaver : data.chapter.data;
-  const qualityPath = useDataSaver ? 'data-saver' : 'data';
+  const quality = useDataSaver ? 'data-saver' : 'data';
+  const proxyBase = '/api/manga/proxy';
   return {
     baseUrl,
     chapterHash: hash,
     pageFiles,
     totalPages: pageFiles.length,
-    pages: (pageFiles || []).map((f: string) => `${baseUrl}/${qualityPath}/${hash}/${f}`),
+    pages: (pageFiles || []).map(
+      (f: string) =>
+        `${proxyBase}?base=${encodeURIComponent(baseUrl)}&hash=${hash}&quality=${quality}&file=${f}`
+    ),
   };
 }
 
