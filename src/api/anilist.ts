@@ -325,6 +325,36 @@ export const anilist = {
       const data = await graphql<any>(DETAIL_QUERY, { id, type: 'MANGA' });
       const m = data?.Media;
       if (!m) return null;
+
+      const title = m.title?.userPreferred || m.title?.romaji || m.title?.english || '';
+      let realChaptersCount = m.chapters || m.episodes || 0;
+      
+      try {
+        if (title) {
+          const isServer = typeof window === 'undefined';
+          const host = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3005');
+          const apiUrl = isServer 
+            ? `${host}/api/manga/info?id=${encodeURIComponent(title)}&isTitle=true`
+            : `/api/manga/info?id=${encodeURIComponent(title)}&isTitle=true`;
+          
+          const res = await fetch(apiUrl);
+          if (res.ok) {
+            const result = await res.json();
+            if (result.chapters && result.chapters.length > 0) {
+              realChaptersCount = result.chapters.length;
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Failed to fetch real chapters for details', e);
+      }
+
+      // Group into volumes of 100 chapters each
+      const CHUNKS_PER_VOL = 100;
+      const numVolumes = realChaptersCount > 0 
+        ? Math.ceil(realChaptersCount / CHUNKS_PER_VOL) 
+        : (m.volumes || 1);
+
       const mapped = {
         ...mapMedia(m, 'tv'),
         credits: {
@@ -342,18 +372,25 @@ export const anilist = {
               ...mapMedia(e.node, 'tv'),
             })),
         },
-        seasons: m.volumes
-          ? Array.from({ length: Math.min(m.volumes, 12) }, (_, i) => ({
-              id: i + 1,
-              season_number: i + 1,
-              name: `Volume ${i + 1}`,
-              episode_count: Math.ceil((m.chapters || m.episodes || 100) / Math.min(m.volumes, 12)),
-              air_date: m.startDate?.year ? `${m.startDate.year}-01-01` : '',
-              poster_path: m.coverImage?.large || '',
-            }))
-          : [],
-        number_of_seasons: m.volumes || 1,
-        number_of_episodes: m.chapters || m.episodes || 0,
+        seasons: Array.from({ length: numVolumes }, (_, i) => {
+          let count = CHUNKS_PER_VOL;
+          if (realChaptersCount > 0 && i === numVolumes - 1) {
+            count = (realChaptersCount - i * CHUNKS_PER_VOL) || CHUNKS_PER_VOL;
+          } else if (realChaptersCount === 0) {
+            count = Math.ceil((m.chapters || m.episodes || 100) / numVolumes);
+          }
+          
+          return {
+            id: i + 1,
+            season_number: i + 1,
+            name: `Volume ${i + 1}`,
+            episode_count: count,
+            air_date: m.startDate?.year ? `${m.startDate.year}-01-01` : '',
+            poster_path: m.coverImage?.large || '',
+          };
+        }),
+        number_of_seasons: numVolumes,
+        number_of_episodes: realChaptersCount || m.chapters || m.episodes || 0,
       };
       return mapped;
     },
@@ -407,9 +444,9 @@ export const anilist = {
         // For simplicity, we just paginate them across 'seasons' (volumes) artificially if needed,
         // or just return all chapters if season === 1.
         // AniList creates pseudo-volumes based on m.volumes. Let's chunk them.
-        const chPerVol = Math.ceil(realChapters.length / Math.max(m?.volumes || 1, 1));
-        const startIdx = (season - 1) * chPerVol;
-        const endIdx = startIdx + chPerVol;
+        const CHUNKS_PER_VOL = 100;
+        const startIdx = (season - 1) * CHUNKS_PER_VOL;
+        const endIdx = startIdx + CHUNKS_PER_VOL;
         const chunk = realChapters.slice(startIdx, endIdx);
 
         const episodes = chunk.map((ch: any) => ({
