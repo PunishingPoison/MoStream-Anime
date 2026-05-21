@@ -85,6 +85,12 @@ const animeDiscoverParams: Record<string, string> = {
   'vote_count.gte': '10',
 };
 
+function isAnimeDetail(item: any): boolean {
+  if (item.original_language !== 'ja') return false;
+  const genreNames = (item.genres || []).map((g: any) => (g.name || '').toLowerCase());
+  return genreNames.includes('animation');
+}
+
 async function fetchMovieOrTvDetail(id: number, append: string[] = []) {
   const appends = ['credits', 'videos', 'images', 'recommendations', 'similar']
     .filter(a => append.includes(a))
@@ -92,6 +98,7 @@ async function fetchMovieOrTvDetail(id: number, append: string[] = []) {
   const params = appends ? `?append_to_response=${appends}` : '';
   try {
     const data = await tmdbFetch<any>(`/movie/${id}${params}`);
+    if (!isAnimeDetail(data)) throw new Error('Not anime, trying TV endpoint');
     const seasons = data.number_of_episodes
       ? Array.from({ length: Math.ceil(data.number_of_episodes / 12) }, (_, i) => ({
           id: i + 1,
