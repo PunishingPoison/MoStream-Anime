@@ -60,7 +60,7 @@ const TvShowHoverCard: React.FC<{ id: number; fullWidth?: boolean }> = ({ id, fu
         </div>
         <div className="flex flex-col gap-2 p-4 pt-[40%] *:z-10">
           <div className="flex gap-2">
-            <Chip size="sm" color="warning" variant="faded" className="text-xs font-bold">TV</Chip>
+            <Chip size="sm" color="warning" variant="faded" className="text-xs font-bold">Manga</Chip>
             {tv.adult && <Chip size="sm" color="danger" variant="faded">18+</Chip>}
           </div>
           <h4 className="text-lg font-bold">{title}</h4>

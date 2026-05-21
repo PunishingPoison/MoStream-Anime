@@ -86,7 +86,7 @@ const HoverPosterCard: React.FC<{ id: number; fullWidth?: boolean; type?: 'movie
         <div className="flex flex-col gap-2 p-4 pt-[40%] *:z-10">
           <div className="flex gap-2">
             <Chip size="sm" color={type === 'movie' ? 'primary' : 'warning'} variant="faded" className="text-xs font-bold">
-              {type === 'movie' ? 'Movie' : 'TV'}
+              {type === 'movie' ? 'Anime' : 'Manga'}
             </Chip>
             {movie.adult && (
               <Chip size="sm" color="danger" variant="faded">18+</Chip>

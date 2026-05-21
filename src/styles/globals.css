@@ -4,9 +4,9 @@
   --color-background: #0d0c0f;
   --color-foreground: #fefefe;
   --color-secondary-background: #1a1a2e;
-  --color-primary: #e50914;
+  --color-primary: #3b82f6;
   --color-primary-foreground: #ffffff;
-  --color-warning: #f5a524;
+  --color-warning: #22c55e;
   --color-warning-foreground: #000000;
   --color-success: #22c55e;
   --color-danger: #ef4444;
@@ -32,7 +32,7 @@
     overflow-x: hidden;
   }
   ::selection {
-    background-color: rgba(229, 9, 20, 0.3);
+    background-color: rgba(59, 130, 246, 0.3);
   }
   ::-webkit-scrollbar {
     width: 6px;
@@ -152,7 +152,7 @@
   }
   .card-hover:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(229, 9, 20, 0.15);
+    box-shadow: 0 8px 30px rgba(59, 130, 246, 0.15);
   }
 
   .netflix-card {
@@ -219,7 +219,7 @@
   }
   .play-button-hover:hover {
     transform: scale(1.08);
-    box-shadow: 0 0 30px rgba(229, 9, 20, 0.4);
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
   }
 }
 

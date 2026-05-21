@@ -79,7 +79,7 @@ export default function TVShowDetailPage({ params }: Params<{ id: number }>) {
   if (error) {
     return (
       <div className="flex h-[50vh] flex-col items-center justify-center gap-4">
-        <p className="text-xl text-muted-foreground">Failed to load TV show details.</p>
+        <p className="text-xl text-muted-foreground">Failed to load manga details.</p>
         <Button color="warning" variant="flat" onPress={() => refetch()}>
           Try Again
         </Button>

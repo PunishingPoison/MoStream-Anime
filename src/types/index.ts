@@ -10,7 +10,7 @@ export type ActionResponse<T = null> = Promise<{
   data?: T;
 }>;
 
-export type MovieParam =
+export type AnimeParam =
   | 'todayTrending'
   | 'thisWeekTrending'
   | 'popular'
@@ -18,7 +18,7 @@ export type MovieParam =
   | 'upcoming'
   | 'topRated';
 
-export type TvShowParam =
+export type MangaParam =
   | 'todayTrending'
   | 'thisWeekTrending'
   | 'popular'

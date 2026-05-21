@@ -27,7 +27,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({ isLoading, onSearchSubmit }
       <ContentTypeSelection />
       <form onSubmit={handleSubmit} className="flex w-full gap-3">
         <Input
-          placeholder="Search movies & TV shows..."
+          placeholder="Search anime & manga..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           startContent={<BiSearchAlt2 className="text-muted-foreground/40" size={20} />}

@@ -29,7 +29,7 @@ export default function MoviePlayerPage({ params }: Params<{ id: number }>) {
   if (error) {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-4">
-        <p className="text-xl text-muted-foreground">Failed to load movie.</p>
+        <p className="text-xl text-muted-foreground">Failed to load anime.</p>
         <Button color="primary" variant="flat" onPress={() => refetch()}>
           Try Again
         </Button>

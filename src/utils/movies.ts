@@ -7,6 +7,7 @@ const PLACEHOLDERS = {
 
 export function getImageUrl(path?: string | null, size: 'poster' | 'backdrop' | 'title' = 'poster'): string {
   if (!path) return PLACEHOLDERS[size];
+  if (path.startsWith('http')) return path;
   const sizes = { poster: '/w500', backdrop: '/w1280', title: '/w300' };
   return `${IMG_BASE}${sizes[size]}${path}`;
 }

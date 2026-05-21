@@ -50,7 +50,7 @@ const SearchList = () => {
           </div>
           <div className="text-center">
             <h5 className="text-xl font-semibold text-muted-foreground">
-              No {content === 'movie' ? 'movies' : 'TV series'} found
+              No {content === 'movie' ? 'anime' : 'manga'} found
             </h5>
             <p className="mt-1 text-sm text-muted-foreground/50">
               No results for &ldquo;<span className="text-warning font-medium">{submittedSearchQuery}</span>&rdquo;
@@ -65,7 +65,7 @@ const SearchList = () => {
           <p className="text-base text-muted-foreground">
             Found{' '}
             <span className="font-semibold text-success">{data?.pages[0]?.total_results?.toLocaleString()}</span>{' '}
-            {content === 'movie' ? 'movies' : 'TV series'} for &ldquo;
+            {content === 'movie' ? 'anime' : 'manga'} for &ldquo;
             <span className="font-semibold text-warning">{submittedSearchQuery}</span>&rdquo;
           </p>
         </div>

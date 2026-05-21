@@ -112,7 +112,7 @@ const LibraryList = () => {
                 ))}
               </Select>
               <Button startContent={<Trash />} color="danger" variant="flat" onPress={open} className="font-medium">
-                Clear All {content === 'movie' ? 'Movies' : 'TV Shows'}
+                Clear All {content === 'movie' ? 'Anime' : 'Manga'}
               </Button>
             </div>
           )}
@@ -124,7 +124,7 @@ const LibraryList = () => {
             </div>
             <div className="text-center">
               <p className="text-xl font-semibold text-muted-foreground">Your library is empty</p>
-              <p className="mt-1 text-sm text-muted-foreground/50">Bookmark movies & TV shows to add them here</p>
+              <p className="mt-1 text-sm text-muted-foreground/50">Bookmark anime & manga to add them here</p>
             </div>
           </div>
         ) : (
@@ -165,13 +165,13 @@ const LibraryList = () => {
       </div>
       <BackToTopButton />
       <ConfirmationModal
-        title={`Clear ${content === 'movie' ? 'Movies' : 'TV Shows'}?`}
+        title={`Clear ${content === 'movie' ? 'Anime' : 'Manga'}?`}
         isOpen={opened}
         onClose={close}
         onConfirm={clearAll}
         confirmLabel="Clear All"
       >
-        <p>Are you sure you want to remove all {content === 'movie' ? 'movies' : 'TV shows'} from your library?</p>
+        <p>Are you sure you want to remove all {content === 'movie' ? 'anime' : 'manga'} from your library?</p>
         <p className="text-muted-foreground text-sm">{sortedItems.length} {sortedItems.length === 1 ? 'item' : 'items'} will be removed.</p>
       </ConfirmationModal>
     </>

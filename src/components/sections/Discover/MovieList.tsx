@@ -65,7 +65,7 @@ const MovieDiscoverList = () => {
             <line x1="9" y1="9" x2="9.01" y2="9" />
             <line x1="15" y1="9" x2="15.01" y2="9" />
           </svg>
-          <p className="text-base text-muted-foreground">No movies found. Try different filters.</p>
+          <p className="text-base text-muted-foreground">No anime found. Try different filters.</p>
         </div>
       ) : (
         <div className="movie-grid">

@@ -32,7 +32,7 @@ export default function TvPlayerPage({ params }: Params<{ id: number }>) {
   if (error) {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-4">
-        <p className="text-xl text-muted-foreground">Failed to load TV show.</p>
+        <p className="text-xl text-muted-foreground">Failed to load manga.</p>
         <Button color="warning" variant="flat" onPress={() => refetch()}>
           Try Again
         </Button>

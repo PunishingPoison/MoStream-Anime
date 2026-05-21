@@ -25,7 +25,7 @@ const ContentTypeSelection: React.FC<ContentTypeSelectionProps> = ({ className }
             : 'text-muted-foreground hover:text-foreground',
         )}
       >
-        Movies
+        Anime
       </Button>
       <Button
         size="sm"
@@ -39,7 +39,7 @@ const ContentTypeSelection: React.FC<ContentTypeSelectionProps> = ({ className }
             : 'text-muted-foreground hover:text-foreground',
         )}
       >
-        TV Shows
+        Manga
       </Button>
     </div>
   );

@@ -1,8 +1,8 @@
 import { SavedItem } from './index';
 
-export type SavedMovieDetails = SavedItem;
+export type SavedAnimeDetails = SavedItem;
 
-export type DiscoverMoviesFetchQueryType =
+export type DiscoverAnimeFetchQueryType =
   | 'discover'
   | 'todayTrending'
   | 'thisWeekTrending'
@@ -11,7 +11,7 @@ export type DiscoverMoviesFetchQueryType =
   | 'upcoming'
   | 'topRated';
 
-export type DiscoverTvsFetchQueryType =
+export type DiscoverMangaFetchQueryType =
   | 'discover'
   | 'todayTrending'
   | 'thisWeekTrending'
@@ -19,10 +19,10 @@ export type DiscoverTvsFetchQueryType =
   | 'onTheAir'
   | 'topRated';
 
-export const DISCOVER_MOVIES_VALID_QUERY_TYPES: readonly DiscoverMoviesFetchQueryType[] = [
+export const DISCOVER_MOVIES_VALID_QUERY_TYPES: readonly DiscoverAnimeFetchQueryType[] = [
   'discover', 'todayTrending', 'thisWeekTrending', 'popular', 'nowPlaying', 'upcoming', 'topRated',
 ];
 
-export const DISCOVER_TVS_VALID_QUERY_TYPES: readonly DiscoverTvsFetchQueryType[] = [
+export const DISCOVER_TVS_VALID_QUERY_TYPES: readonly DiscoverMangaFetchQueryType[] = [
   'discover', 'todayTrending', 'thisWeekTrending', 'popular', 'onTheAir', 'topRated',
 ];

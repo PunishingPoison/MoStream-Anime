@@ -83,7 +83,7 @@ const TopNavbar = () => {
               className="w-full"
             >
               <SearchInput
-                placeholder="Search movies & TV shows..."
+                placeholder="Search anime & manga..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />

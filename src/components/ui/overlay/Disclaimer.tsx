@@ -28,7 +28,7 @@ const Disclaimer = () => {
             <h2 className="text-xl font-bold">Before You Start</h2>
           </div>
           <p className="text-sm leading-relaxed text-muted-foreground">
-            Mostream is a free, open-source streaming platform that uses third-party APIs to provide content.
+            MoAnime is a free, open-source streaming platform that uses third-party APIs to provide content.
             We do not host any copyrighted material on our servers. All content is sourced from publicly
             available APIs and embedded players.
           </p>

@@ -51,14 +51,14 @@ const TvShowOverviewSection: React.FC<TvShowOverviewSectionProps> = ({ tv, onVie
           </div>
           <div className="flex min-w-0 flex-1 flex-col justify-end gap-2 md:hidden">
             <div className="flex gap-2">
-              <Chip color="warning" variant="faded" className="text-xs font-bold">TV</Chip>
+              <Chip color="warning" variant="faded" className="text-xs font-bold">Manga</Chip>
               {tv.adult && <Chip color="danger" variant="faded">18+</Chip>}
             </div>
             <h2 className="text-xl font-black">{title}</h2>
             <div className="flex flex-wrap items-center gap-1 text-xs">
-              <Season /><span>{tv.number_of_seasons} Season{tv.number_of_seasons > 1 ? 's' : ''}</span>
+              <Season /><span>{tv.number_of_seasons} Volume{tv.number_of_seasons > 1 ? 's' : ''}</span>
               <span className="text-muted-foreground/50 mx-0.5">&bull;</span>
-              <List /><span>{tv.number_of_episodes} Episode{tv.number_of_episodes > 1 ? 's' : ''}</span>
+              <List /><span>{tv.number_of_episodes} Chapter{tv.number_of_episodes > 1 ? 's' : ''}</span>
               <span className="text-muted-foreground/50 mx-0.5">&bull;</span>
               <Calendar /><span>{releaseYears}</span>
               <span className="text-muted-foreground/50 mx-0.5">&bull;</span>
@@ -70,14 +70,14 @@ const TvShowOverviewSection: React.FC<TvShowOverviewSectionProps> = ({ tv, onVie
         <div className="flex flex-col gap-6 mt-4 md:mt-0">
           <div id="title" className="flex-col gap-1 md:gap-2 hidden md:flex">
             <div className="flex gap-2">
-              <Chip color="warning" variant="faded" className="text-xs font-bold">TV</Chip>
+              <Chip color="warning" variant="faded" className="text-xs font-bold">Manga</Chip>
               {tv.adult && <Chip color="danger" variant="faded">18+</Chip>}
             </div>
             <h2 className="text-2xl font-black md:text-4xl md:mt-1">{title}</h2>
             <div className="flex flex-wrap gap-1 text-xs md:text-sm md:gap-2">
-              <div className="flex items-center gap-1"><Season /><span>{tv.number_of_seasons} Season{tv.number_of_seasons > 1 ? 's' : ''}</span></div>
+              <div className="flex items-center gap-1"><Season /><span>{tv.number_of_seasons} Volume{tv.number_of_seasons > 1 ? 's' : ''}</span></div>
               <p className="text-muted-foreground/50">&bull;</p>
-              <div className="flex items-center gap-1"><List /><span>{tv.number_of_episodes} Episode{tv.number_of_episodes > 1 ? 's' : ''}</span></div>
+              <div className="flex items-center gap-1"><List /><span>{tv.number_of_episodes} Chapter{tv.number_of_episodes > 1 ? 's' : ''}</span></div>
               <p className="text-muted-foreground/50">&bull;</p>
               <div className="flex items-center gap-1"><Calendar /><span>{releaseYears}</span></div>
               <p className="text-muted-foreground/50">&bull;</p>
@@ -87,11 +87,11 @@ const TvShowOverviewSection: React.FC<TvShowOverviewSectionProps> = ({ tv, onVie
           </div>
           <div id="action" className="flex w-full flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap gap-2">
-              <Button color="warning" variant="shadow" onPress={onViewEpisodesClick} startContent={<FaCirclePlay size={22} />} className="font-semibold px-6 play-button-hover">View Episodes</Button>
+              <Button color="warning" variant="shadow" onPress={onViewEpisodesClick} startContent={<FaCirclePlay size={22} />} className="font-semibold px-6 play-button-hover">View Chapters</Button>
               <Trailer color="warning" videos={tv.videos?.results} />
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Button as={Link} href={`/tv/${tv.id}/player`} variant="flat" color="warning" startContent={<FaCirclePlay size={14} />} className="font-medium">Play from Start</Button>
+                  <Button as={Link} href={`/tv/${tv.id}/player`} variant="flat" color="warning" startContent={<FaCirclePlay size={14} />} className="font-medium">Read from Start</Button>
               <BookmarkButton data={bookmarkData} />
             </div>
           </div>

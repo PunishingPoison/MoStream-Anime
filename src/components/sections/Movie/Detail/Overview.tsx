@@ -44,7 +44,7 @@ const OverviewSection: React.FC<{ movie: any }> = ({ movie }) => {
           </div>
           <div className="flex min-w-0 flex-1 flex-col justify-end gap-2 md:hidden">
             <div className="flex gap-2">
-              <Chip color="primary" variant="faded" className="text-xs font-bold">Movie</Chip>
+              <Chip color="primary" variant="faded" className="text-xs font-bold">Anime</Chip>
               {movie.adult && <Chip color="danger" variant="faded">18+</Chip>}
             </div>
             <h2 className="text-xl font-black">{title}</h2>
@@ -63,7 +63,7 @@ const OverviewSection: React.FC<{ movie: any }> = ({ movie }) => {
         <div className="flex flex-col gap-6 mt-4 md:mt-0">
           <div id="title" className="flex-col gap-1 md:gap-2 hidden md:flex">
             <div className="flex gap-2">
-              <Chip color="primary" variant="faded" className="text-xs font-bold">Movie</Chip>
+              <Chip color="primary" variant="faded" className="text-xs font-bold">Anime</Chip>
               {movie.adult && <Chip color="danger" variant="faded">18+</Chip>}
             </div>
             <h2 className="text-2xl font-black md:text-4xl md:mt-1">{title}</h2>

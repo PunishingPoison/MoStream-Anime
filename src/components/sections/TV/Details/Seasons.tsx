@@ -31,7 +31,7 @@ const TvShowsSeasonsSelection = forwardRef<HTMLDivElement, TvShowsSeasonsSelecti
 
     return (
       <section id="seasons" ref={ref} className="relative z-3">
-        <SectionTitle color="warning">Episodes</SectionTitle>
+        <SectionTitle color="warning">Chapters</SectionTitle>
         <div className="mt-4">
           {validSeasons.length > 0 && (
             <Carousel options={{ align: 'start', dragFree: true, slidesToScroll: 2 }}>
@@ -48,7 +48,7 @@ const TvShowsSeasonsSelection = forwardRef<HTMLDivElement, TvShowsSeasonsSelecti
                         : 'font-semibold opacity-70 hover:opacity-100'
                     }
                   >
-                    {season.name || `Season ${season.season_number}`}
+                    {season.name || `Volume ${season.season_number}`}
                   </Button>
                 </div>
               ))}
@@ -73,7 +73,7 @@ const TvShowsSeasonsSelection = forwardRef<HTMLDivElement, TvShowsSeasonsSelecti
               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                 <div className="flex items-start justify-between gap-2">
                   <h4 className="truncate text-sm font-bold md:text-base">
-                    <span className="text-muted-foreground">E{episode.episode_number}</span> {episode.name}
+                    <span className="text-muted-foreground">Ch.{episode.episode_number}</span> {episode.name}
                   </h4>
                   {episode.air_date && (
                     <span className="shrink-0 text-xs text-muted-foreground/60">
@@ -94,7 +94,7 @@ const TvShowsSeasonsSelection = forwardRef<HTMLDivElement, TvShowsSeasonsSelecti
                     startContent={<FaCirclePlay size={12} />}
                     className="font-semibold transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-warning/20"
                   >
-                    Play Episode
+                    Read Chapter
                   </Button>
                 </div>
               </div>
@@ -102,7 +102,7 @@ const TvShowsSeasonsSelection = forwardRef<HTMLDivElement, TvShowsSeasonsSelecti
           ))}
           {seasonData?.episodes?.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <p className="text-sm text-muted-foreground">No episodes available for this season.</p>
+              <p className="text-sm text-muted-foreground">No chapters available for this volume.</p>
             </div>
           )}
         </div>

@@ -76,7 +76,7 @@ export default function MovieDetailPage({ params }: Params<{ id: number }>) {
   if (error) {
     return (
       <div className="flex h-[50vh] flex-col items-center justify-center gap-4">
-        <p className="text-xl text-muted-foreground">Failed to load movie details.</p>
+        <p className="text-xl text-muted-foreground">Failed to load anime details.</p>
         <Button color="primary" variant="flat" onPress={() => refetch()}>
           Try Again
         </Button>

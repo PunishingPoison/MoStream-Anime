@@ -1,5 +1,4 @@
 import { SiteConfigType } from '@/types';
-import { tmdb } from '@/api/tmdb';
 import { GoHomeFill, GoHome } from 'react-icons/go';
 import { BiSearchAlt2, BiSolidSearchAlt2 } from 'react-icons/bi';
 import { IoCompass, IoCompassOutline } from 'react-icons/io5';
@@ -8,10 +7,11 @@ import { IoInformationCircle, IoInformationCircleOutline } from 'react-icons/io5
 import { IoIosSunny } from 'react-icons/io';
 import { IoMoon } from 'react-icons/io5';
 import { HiComputerDesktop } from 'react-icons/hi2';
+import { anilist } from '@/api/anilist';
 
 export const siteConfig: SiteConfigType = {
-  name: 'Mostream',
-  description: 'Your only choice for a free movies and TV shows streaming website.',
+  name: 'MoAnime',
+  description: 'Your premier destination for free anime and manga streaming.',
   favicon: '/favicon.ico',
   navItems: [
     {
@@ -53,60 +53,45 @@ export const siteConfig: SiteConfigType = {
   queryLists: {
     movies: [
       {
-        name: "Today's Trending Movies",
-        query: () => tmdb.trending.trending('movie', 'day'),
+        name: "Today's Trending Anime",
+        query: () => anilist.trending.trending('movie', 'day'),
         param: 'todayTrending',
       },
       {
-        name: "This Week's Trending Movies",
-        query: () => tmdb.trending.trending('movie', 'week'),
+        name: "This Week's Trending Anime",
+        query: () => anilist.trending.trending('movie', 'week'),
         param: 'thisWeekTrending',
       },
       {
-        name: 'Popular Movies',
-        query: () => tmdb.movies.popular(),
+        name: 'Popular Anime',
+        query: () => anilist.anime.popular(),
         param: 'popular',
       },
       {
-        name: 'Now Playing Movies',
-        query: () => tmdb.movies.nowPlaying(),
-        param: 'nowPlaying',
-      },
-      {
-        name: 'Upcoming Movies',
-        query: () => tmdb.movies.upcoming(),
-        param: 'upcoming',
-      },
-      {
-        name: 'Top Rated Movies',
-        query: () => tmdb.movies.topRated(),
+        name: 'Top Rated Anime',
+        query: () => anilist.anime.topRated(),
         param: 'topRated',
       },
     ],
     tvShows: [
       {
-        name: "Today's Trending TV Shows",
-        query: () => tmdb.trending.trending('tv', 'day'),
+        name: "Today's Trending Manga",
+        query: () => anilist.trending.trending('tv', 'day'),
         param: 'todayTrending',
       },
       {
-        name: "This Week's Trending TV Shows",
-        query: () => tmdb.trending.trending('tv', 'week'),
+        name: "This Week's Trending Manga",
+        query: () => anilist.trending.trending('tv', 'week'),
         param: 'thisWeekTrending',
       },
       {
-        name: 'Popular TV Shows',
-        query: () => tmdb.tvShows.popular(),
+        name: 'Popular Manga',
+        query: () => anilist.manga.popular(),
         param: 'popular',
       },
       {
-        name: 'On The Air TV Shows',
-        query: () => tmdb.tvShows.onTheAir(),
-        param: 'onTheAir',
-      },
-      {
-        name: 'Top Rated TV Shows',
-        query: () => tmdb.tvShows.topRated(),
+        name: 'Top Rated Manga',
+        query: () => anilist.manga.topRated(),
         param: 'topRated',
       },
     ],
