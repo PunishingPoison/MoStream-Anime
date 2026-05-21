@@ -1,7 +1,7 @@
 'use client';
 
 import { tmdb } from '@/api/tmdb';
-import TvPlayer from '@/components/sections/TV/Player/Player';
+import MangaReader from '@/components/sections/Manga/Reader/Reader';
 import { Params } from '@/types';
 import { isEmpty } from '@/utils/helpers';
 import { Button, Skeleton } from '@heroui/react';
@@ -9,10 +9,10 @@ import { useQuery } from '@tanstack/react-query';
 import { notFound } from 'next/navigation';
 import { use } from 'react';
 import { parseAsInteger, useQueryState } from 'nuqs';
+import { mutateTvShowTitle } from '@/utils/movies';
 
 export default function TvPlayerPage({ params }: Params<{ id: number }>) {
   const { id } = use(params);
-  const [season] = useQueryState('season', parseAsInteger.withDefault(1));
   const [episode] = useQueryState('episode', parseAsInteger.withDefault(1));
 
   const { data: tv, isPending, error, refetch } = useQuery<any>({
@@ -42,5 +42,7 @@ export default function TvPlayerPage({ params }: Params<{ id: number }>) {
 
   if (isEmpty(tv)) return notFound();
 
-  return <TvPlayer tv={tv} season={season} episode={episode} />;
+  const mangaTitle = mutateTvShowTitle(tv);
+
+  return <MangaReader mangaTitle={mangaTitle} mangaId={id} chapterNumber={episode} />;
 }

@@ -17,16 +17,18 @@ const AdsWarning = dynamic(() => import('@/components/ui/overlay/AdsWarning'));
 
 interface MoviePlayerProps {
   movie: any;
+  season?: number;
+  episode?: number;
   startAt?: number;
 }
 
-const MoviePlayer: React.FC<MoviePlayerProps> = ({ movie, startAt }) => {
+const MoviePlayer: React.FC<MoviePlayerProps> = ({ movie, season, episode, startAt }) => {
   const [seen] = useLocalStorage<boolean>({
     key: ADS_WARNING_STORAGE_KEY,
     getInitialValueInEffect: false,
   });
 
-  const players = getMoviePlayers(movie.id, startAt);
+  const players = getMoviePlayers(movie.id, season || 0, episode || 0, startAt);
   const title = mutateMovieTitle(movie);
   const idle = useIdle(3000);
   const [opened, handlers] = useDisclosure(false);
@@ -46,6 +48,8 @@ const MoviePlayer: React.FC<MoviePlayerProps> = ({ movie, startAt }) => {
         <MoviePlayerHeader
           id={movie.id}
           movieName={title}
+          season={season}
+          episode={episode}
           onOpenSource={handlers.open}
           hidden={idle}
         />

@@ -8,13 +8,18 @@ import Rating from '@/components/ui/other/Rating';
 import Genres from '@/components/ui/other/Genres';
 import SectionTitle from '@/components/ui/other/SectionTitle';
 import Trailer from '@/components/ui/overlay/Trailer';
-import { Calendar, Clock } from '@/utils/icons';
+import { Calendar, Clock, List, Season } from '@/utils/icons';
 import Link from 'next/link';
 import { FaCirclePlay } from 'react-icons/fa6';
 import { useDocumentTitle } from '@mantine/hooks';
 import { siteConfig } from '@/config/site';
 
-const OverviewSection: React.FC<{ movie: any }> = ({ movie }) => {
+interface MovieOverviewSectionProps {
+  movie: any;
+  onViewEpisodesClick?: () => void;
+}
+
+const OverviewSection: React.FC<MovieOverviewSectionProps> = ({ movie, onViewEpisodesClick }) => {
   const releaseYear = movie.release_date ? new Date(movie.release_date).getFullYear() : '';
   const posterImage = getImageUrl(movie.poster_path);
   const title = mutateMovieTitle(movie);
@@ -49,6 +54,10 @@ const OverviewSection: React.FC<{ movie: any }> = ({ movie }) => {
             </div>
             <h2 className="text-xl font-black">{title}</h2>
             <div className="flex flex-wrap items-center gap-1 text-xs">
+              <Season /><span>{movie.number_of_seasons || 1} Season{(movie.number_of_seasons || 1) > 1 ? 's' : ''}</span>
+              <span className="text-muted-foreground/50 mx-0.5">&bull;</span>
+              <List /><span>{movie.number_of_episodes || 0} Episode{(movie.number_of_episodes || 0) > 1 ? 's' : ''}</span>
+              <span className="text-muted-foreground/50 mx-0.5">&bull;</span>
               <Clock />
               <span>{movieDurationString(movie?.runtime)}</span>
               <span className="text-muted-foreground/50 mx-0.5">&bull;</span>
@@ -68,6 +77,10 @@ const OverviewSection: React.FC<{ movie: any }> = ({ movie }) => {
             </div>
             <h2 className="text-2xl font-black md:text-4xl md:mt-1">{title}</h2>
             <div className="flex flex-wrap gap-1 text-xs md:text-sm md:gap-2">
+              <div className="flex items-center gap-1"><Season /><span>{movie.number_of_seasons || 1} Season{(movie.number_of_seasons || 1) > 1 ? 's' : ''}</span></div>
+              <p className="text-muted-foreground/50">&bull;</p>
+              <div className="flex items-center gap-1"><List /><span>{movie.number_of_episodes || 0} Episode{(movie.number_of_episodes || 0) > 1 ? 's' : ''}</span></div>
+              <p className="text-muted-foreground/50">&bull;</p>
               <div className="flex items-center gap-1"><Clock /><span>{movieDurationString(movie?.runtime)}</span></div>
               <p className="text-muted-foreground/50">&bull;</p>
               <div className="flex items-center gap-1"><Calendar /><span>{releaseYear}</span></div>
@@ -79,6 +92,9 @@ const OverviewSection: React.FC<{ movie: any }> = ({ movie }) => {
           <div id="action" className="flex w-full flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap gap-2">
               <Button as={Link} href={`/movie/${movie.id}/player`} color="primary" variant="shadow" startContent={<FaCirclePlay size={22} />} className="font-semibold px-6 play-button-hover">Play Now</Button>
+              {onViewEpisodesClick && (
+                <Button onPress={onViewEpisodesClick} color="primary" variant="flat" startContent={<FaCirclePlay size={22} />} className="font-semibold px-6">View Episodes</Button>
+              )}
               <Trailer videos={movie.videos?.results} />
             </div>
             <BookmarkButton data={bookmarkData} />

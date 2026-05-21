@@ -249,6 +249,9 @@ export const anilist = {
       const data = await graphql<any>(DETAIL_QUERY, { id, type: 'ANIME' });
       const m = data?.Media;
       if (!m) return null;
+      const epsPerSeason = 12;
+      const totalEpisodes = m.episodes || 12;
+      const totalSeasons = Math.ceil(totalEpisodes / epsPerSeason);
       const mapped = {
         ...mapMedia(m, 'movie'),
         credits: {
@@ -266,6 +269,16 @@ export const anilist = {
               ...mapMedia(e.node, 'movie'),
             })),
         },
+        seasons: Array.from({ length: totalSeasons }, (_, i) => ({
+          id: i + 1,
+          season_number: i + 1,
+          name: `Season ${i + 1}`,
+          episode_count: Math.min(epsPerSeason, totalEpisodes - i * epsPerSeason),
+          air_date: m.startDate?.year ? `${m.startDate.year}-01-01` : '',
+          poster_path: m.coverImage?.large || '',
+        })),
+        number_of_seasons: totalSeasons,
+        number_of_episodes: totalEpisodes,
       };
       return mapped;
     },
@@ -284,6 +297,27 @@ export const anilist = {
     topRated: async (page = 1) => {
       const data = await graphql<any>(TOP_RATED_QUERY, { page, perPage: 20, type: 'ANIME' });
       return pageResult(data, 'movie');
+    },
+    seasonDetails: async (id: number, season: number) => {
+      const data = await graphql<any>(DETAIL_QUERY, { id, type: 'ANIME' });
+      const m = data?.Media;
+      const epsPerSeason = 12;
+      const totalEpisodes = m?.episodes || 12;
+      const startEp = (season - 1) * epsPerSeason + 1;
+      const endEp = Math.min(season * epsPerSeason, totalEpisodes);
+      const episodes = [];
+      for (let ep = startEp; ep <= endEp; ep++) {
+        episodes.push({
+          id: ep,
+          name: `Episode ${ep}`,
+          episode_number: ep,
+          season_number: season,
+          still_path: m?.bannerImage || m?.coverImage?.large || '',
+          overview: `Episode ${ep} of ${m?.title?.romaji || ''}`,
+          air_date: '',
+        });
+      }
+      return { episodes };
     },
   },
   manga: {

@@ -8,11 +8,13 @@ import { IoChevronBack, IoLayersOutline } from 'react-icons/io5';
 interface MoviePlayerHeaderProps {
   id: number;
   movieName: string;
+  season?: number;
+  episode?: number;
   onOpenSource: () => void;
   hidden: boolean;
 }
 
-const MoviePlayerHeader: React.FC<MoviePlayerHeaderProps> = ({ id, movieName, onOpenSource, hidden }) => {
+const MoviePlayerHeader: React.FC<MoviePlayerHeaderProps> = ({ id, movieName, season, episode, onOpenSource, hidden }) => {
   return (
     <div
       className={cn(
@@ -24,7 +26,9 @@ const MoviePlayerHeader: React.FC<MoviePlayerHeaderProps> = ({ id, movieName, on
         <Button isIconOnly size="sm" variant="light" className="text-white bg-white/10 backdrop-blur-sm hover:bg-white/20" as={Link} href={`/movie/${id}`}>
           <IoChevronBack size={24} />
         </Button>
-        <span className="text-sm font-semibold text-white drop-shadow-sm truncate max-w-[200px] md:max-w-md">{movieName}</span>
+        <span className="text-sm font-semibold text-white drop-shadow-sm truncate max-w-[200px] md:max-w-md">
+          {movieName}{season && episode ? ` - S${season}:E${episode}` : ''}
+        </span>
       </div>
       <Button
         size="sm"

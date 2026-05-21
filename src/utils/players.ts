@@ -1,42 +1,47 @@
 import { PlayersProps } from '@/types';
 
-export const getMoviePlayers = (id: string | number, startAt?: number): PlayersProps[] => [
-  {
-    title: 'VidSrc',
-    source: `https://vidsrc.xyz/embed/anime/${id}`,
-    recommended: true, fast: true, resumable: true,
-  },
-  {
-    title: 'VidSrc 2',
-    source: `https://vidsrc.to/embed/anime/${id}`,
-    recommended: true, fast: true, ads: true, resumable: true,
-  },
-  {
-    title: 'VidSrc 3',
-    source: `https://vidsrc.icu/embed/anime/${id}`,
-    fast: true, ads: true, resumable: true,
-  },
-  {
-    title: 'Embed.su',
-    source: `https://embed.su/embed/anime/${id}`,
-    ads: true,
-  },
-  {
-    title: 'AutoEmbed',
-    source: `https://autoembed.co/anime/tmdb/${id}`,
-    fast: true, ads: true,
-  },
-  {
-    title: '2Embed',
-    source: `https://www.2embed.cc/embed/${id}`,
-    ads: true,
-  },
-  {
-    title: 'SuperEmbed',
-    source: `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1`,
-    fast: true, ads: true,
-  },
-];
+export const getMoviePlayers = (id: string | number, season?: number, episode?: number, startAt?: number): PlayersProps[] => {
+  const epPath = season && episode ? `/${episode}` : '';
+  const epSuffix = season && episode ? `?s=${season}&e=${episode}` : '';
+
+  return [
+    {
+      title: 'VidSrc',
+      source: `https://vidsrc.xyz/embed/anime/${id}${epPath}`,
+      recommended: true, fast: true, resumable: true,
+    },
+    {
+      title: 'VidSrc Pro',
+      source: `https://vidsrc.to/embed/anime/${id}${epPath}`,
+      recommended: true, fast: true, ads: true, resumable: true,
+    },
+    {
+      title: 'VidLink',
+      source: `https://vidlink.to/anime/${id}${epSuffix}`,
+      fast: true, ads: true,
+    },
+    {
+      title: 'Embed.su',
+      source: `https://embed.su/embed/anime/${id}${epPath}`,
+      ads: true,
+    },
+    {
+      title: 'Anime Embed',
+      source: `https://autoembed.co/anime/tmdb/${id}${epSuffix}`,
+      fast: true, ads: true,
+    },
+    {
+      title: 'Megacloud',
+      source: `https://megacloud.tv/embed/anime/${id}${epSuffix}`,
+      fast: true, ads: true,
+    },
+    {
+      title: 'SuperEmbed',
+      source: `https://multiembed.mov/directstream.php?video_id=${id}&tmdb=1${season && episode ? `&s=${season}&e=${episode}` : ''}`,
+      fast: true, ads: true,
+    },
+  ];
+};
 
 export const getTvShowPlayers = (id: string | number, season: number, episode: number, startAt?: number): PlayersProps[] => [
   {
@@ -45,14 +50,14 @@ export const getTvShowPlayers = (id: string | number, season: number, episode: n
     recommended: true, fast: true, resumable: true,
   },
   {
-    title: 'VidSrc 2',
+    title: 'VidSrc Pro',
     source: `https://vidsrc.to/embed/anime/${id}/${episode}`,
     recommended: true, fast: true, ads: true, resumable: true,
   },
   {
-    title: 'VidSrc 3',
-    source: `https://vidsrc.icu/embed/anime/${id}/${episode}`,
-    fast: true, ads: true, resumable: true,
+    title: 'VidLink',
+    source: `https://vidlink.to/anime/${id}?s=${season}&e=${episode}`,
+    fast: true, ads: true,
   },
   {
     title: 'Embed.su',
@@ -60,14 +65,14 @@ export const getTvShowPlayers = (id: string | number, season: number, episode: n
     ads: true,
   },
   {
-    title: 'AutoEmbed',
+    title: 'Anime Embed',
     source: `https://autoembed.co/tv/tmdb/${id}-${season}-${episode}`,
     fast: true, ads: true,
   },
   {
-    title: '2Embed',
-    source: `https://www.2embed.cc/embedtv/${id}&s=${season}&e=${episode}`,
-    ads: true,
+    title: 'Megacloud',
+    source: `https://megacloud.tv/embed/anime/${id}/${episode}`,
+    fast: true, ads: true,
   },
   {
     title: 'SuperEmbed',

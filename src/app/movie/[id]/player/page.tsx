@@ -8,9 +8,12 @@ import { Button, Skeleton } from '@heroui/react';
 import { useQuery } from '@tanstack/react-query';
 import { notFound } from 'next/navigation';
 import { use } from 'react';
+import { parseAsInteger, useQueryState } from 'nuqs';
 
 export default function MoviePlayerPage({ params }: Params<{ id: number }>) {
   const { id } = use(params);
+  const [season] = useQueryState('season', parseAsInteger.withDefault(0));
+  const [episode] = useQueryState('episode', parseAsInteger.withDefault(0));
 
   const { data: movie, isPending, error, refetch } = useQuery<any>({
     queryFn: () => tmdb.movies.details(id),
@@ -39,5 +42,5 @@ export default function MoviePlayerPage({ params }: Params<{ id: number }>) {
 
   if (isEmpty(movie)) return notFound();
 
-  return <MoviePlayer movie={movie} />;
+  return <MoviePlayer movie={movie} season={season} episode={episode} />;
 }

@@ -4,6 +4,7 @@ import BackToTopButton from '@/components/ui/button/BackToTopButton';
 import { tmdb } from '@/api/tmdb';
 import { Params } from '@/types';
 import { Button, Skeleton } from '@heroui/react';
+import { useScrollIntoView } from '@mantine/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { notFound } from 'next/navigation';
 import { Suspense, use } from 'react';
@@ -14,6 +15,7 @@ const BackdropSection = dynamic(() => import('@/components/sections/Movie/Detail
 const OverviewSection = dynamic(() => import('@/components/sections/Movie/Detail/Overview'));
 const CastsSection = dynamic(() => import('@/components/sections/Movie/Detail/Casts'));
 const RelatedSection = dynamic(() => import('@/components/sections/Movie/Detail/Related'));
+const MovieSeasonsSelection = dynamic(() => import('@/components/sections/Movie/Detail/Seasons'));
 
 function MovieDetailSkeleton() {
   return (
@@ -64,6 +66,7 @@ function MovieDetailSkeleton() {
 
 export default function MovieDetailPage({ params }: Params<{ id: number }>) {
   const { id } = use(params);
+  const { scrollIntoView, targetRef } = useScrollIntoView<HTMLDivElement>({ duration: 500 });
 
   const { data: movie, isPending, error, refetch } = useQuery<any>({
     queryFn: () =>
@@ -91,9 +94,13 @@ export default function MovieDetailPage({ params }: Params<{ id: number }>) {
       <Suspense fallback={<MovieDetailSkeleton />}>
         <div className="flex flex-col gap-8 md:gap-10">
           <BackdropSection movie={movie} />
-          <OverviewSection movie={movie} />
+          <OverviewSection
+            onViewEpisodesClick={() => scrollIntoView({ alignment: 'center' })}
+            movie={movie}
+          />
           <CastsSection casts={movie?.credits?.cast || []} />
           <PhotosSection images={movie?.images?.backdrops || []} />
+          <MovieSeasonsSelection ref={targetRef} id={id} seasons={movie?.seasons || []} />
           <RelatedSection movie={movie} />
         </div>
       </Suspense>

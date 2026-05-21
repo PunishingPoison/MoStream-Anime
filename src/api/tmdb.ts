@@ -11,6 +11,7 @@ export const tmdb = {
     nowPlaying: (page = 1) => anilist.anime.nowPlaying(page),
     upcoming: (page = 1) => anilist.anime.upcoming(page),
     topRated: (page = 1) => anilist.anime.topRated(page),
+    seasonDetails: (id: number, season: number) => anilist.anime.seasonDetails(id, season),
   },
   tvShows: {
     details: (id: number, append?: string[]) => anilist.manga.details(id, append),
