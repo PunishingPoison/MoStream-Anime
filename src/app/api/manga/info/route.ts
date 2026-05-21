@@ -59,21 +59,25 @@ export async function GET(request: NextRequest) {
         const result = await fetchFromProvider(targetProvider, id);
         if (result) return result;
       } else {
-        try {
-          const mdResult = await fetchFromProvider('mangadex', id);
-          if (mdResult) return mdResult;
-        } catch {}
-        
-        const fallbacks = ['consumet', 'mangahook'];
         const errors: string[] = [];
-        for (const pName of fallbacks) {
-          try {
-            const result = await fetchFromProvider(pName, id);
-            if (result) return result;
-          } catch (e: any) {
-            errors.push(`${pName}: ${e.message}`);
+        const results = await Promise.all([
+          fetchFromProvider('mangadex', id).catch((e) => { errors.push(`mangadex: ${e.message}`); return null; }),
+          fetchFromProvider('consumet', id).catch((e) => { errors.push(`consumet: ${e.message}`); return null; }),
+          fetchFromProvider('mangahook', id).catch((e) => { errors.push(`mangahook: ${e.message}`); return null; })
+        ]);
+
+        let bestResult = null;
+        let maxChapters = 0;
+
+        for (const res of results) {
+          if (res && res.chapters && res.chapters.length > maxChapters) {
+            maxChapters = res.chapters.length;
+            bestResult = res;
           }
         }
+
+        if (bestResult) return bestResult;
+        
         return { id, title: isTitle ? id : '', chapters: [], errors };
       }
       

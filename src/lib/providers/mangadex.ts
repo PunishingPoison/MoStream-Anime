@@ -53,19 +53,37 @@ export async function getMangaInfo(id: string): Promise<MdMangaInfo> {
   const m = data.data;
   const title = pickTitle(m.attributes?.title || {});
 
-  const feed = await mdFetch<any>(
-    `/manga/${id}/feed?limit=500&translatedLanguage[]=en&order[chapter]=desc&contentRating[]=safe&contentRating[]=suggestive&includes[]=scanlation_group`
-  );
-  const chapters: MdChapter[] = (feed.data || [])
-    .filter((c: any) => !c.attributes?.isUnavailable && !c.attributes?.externalUrl && c.attributes?.pages > 0)
-    .map((c: any) => ({
-      id: c.id,
-      chapterNumber: parseFloat(c.attributes?.chapter) || 0,
-      title: c.attributes?.title || `Chapter ${c.attributes?.chapter}`,
-    }))
-    .filter((c: MdChapter) => c.chapterNumber > 0);
+  const limit = 500;
+  let offset = 0;
+  let allChapters: MdChapter[] = [];
+  let total = 0;
 
-  return { id, title, chapters };
+  do {
+    const feed = await mdFetch<any>(
+      `/manga/${id}/feed?limit=${limit}&offset=${offset}&translatedLanguage[]=en&order[chapter]=desc&contentRating[]=safe&contentRating[]=suggestive&includes[]=scanlation_group`
+    );
+    
+    total = feed.total || 0;
+    
+    const chunk: MdChapter[] = (feed.data || [])
+      .filter((c: any) => !c.attributes?.isUnavailable && !c.attributes?.externalUrl && c.attributes?.pages > 0)
+      .map((c: any) => ({
+        id: c.id,
+        chapterNumber: parseFloat(c.attributes?.chapter) || 0,
+        title: c.attributes?.title || `Chapter ${c.attributes?.chapter}`,
+      }))
+      .filter((c: MdChapter) => c.chapterNumber > 0);
+      
+    allChapters = allChapters.concat(chunk);
+    offset += limit;
+  } while (offset < total);
+
+  // deduplicate by chapter number (keep the first one found, which is the latest uploaded or highest rated depending on order)
+  const uniqueChapters = Array.from(
+    new Map(allChapters.map((c) => [c.chapterNumber, c])).values()
+  ).sort((a, b) => a.chapterNumber - b.chapterNumber);
+
+  return { id, title, chapters: uniqueChapters };
 }
 
 export async function getChapterPages(
