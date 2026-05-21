@@ -53,7 +53,7 @@ const TvShowHomeList: React.FC<QueryList<any>> = ({ query, name, param }) => {
           </div>
           <Carousel>
             {data?.results.map((tv: any) => (
-              <div key={tv.id} className="embla__slide flex min-h-fit items-center px-1 py-2 min-w-[150px] sm:min-w-[175px] md:min-w-[200px]">
+                <div key={tv.id} className="embla__slide flex min-h-fit items-center px-1 py-2 w-[140px] sm:w-[155px] md:w-[170px]">
                 <TvShowPosterCard tv={tv} />
               </div>
             ))}

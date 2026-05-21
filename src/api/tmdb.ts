@@ -37,13 +37,16 @@ async function loadGenres(): Promise<Record<number, { id: number; name: string }
 }
 
 function isAnime(item: any): boolean {
-  const langs = item.original_language || item.origin_country?.[0] || '';
+  const lang = item.original_language || '';
   const genres = item.genre_ids || [];
   const genreNames = item.genres?.map((g: any) => (typeof g === 'string' ? g : g.name).toLowerCase()) || [];
-  return (
-    langs === ANIME_LANG &&
-    (genres.includes(Number(ANIME_GENRE_ID)) || genreNames.includes('animation') || genreNames.includes('anime'))
-  );
+  const name = (item.title || item.name || '').toLowerCase();
+  const overview = (item.overview || '').toLowerCase();
+  if (lang !== ANIME_LANG) return false;
+  if (!genres.includes(Number(ANIME_GENRE_ID)) && !genreNames.includes('animation')) return false;
+  const nonAnimeKeywords = ['live action', 'live-action', 'kdrama', 'drama'];
+  if (nonAnimeKeywords.some(k => name.includes(k) || overview.includes(k))) return false;
+  return true;
 }
 
 function mapListItem(item: any, mediaType: 'movie' | 'tv') {
@@ -134,7 +137,11 @@ export const tmdb = {
     trending: async (media: 'movie' | 'tv', time: 'day' | 'week') => {
       if (media === 'movie') {
         await loadGenres();
-        const data = await tmdbFetch<any>(`/trending/tv/${time}`);
+        const data = await tmdbFetch<any>('/discover/tv', {
+          ...animeDiscoverParams,
+          sort_by: 'popularity.desc',
+          page: '1',
+        });
         return pageResponse(data, 'movie');
       }
       return anilist.trending.trending(media, time);
