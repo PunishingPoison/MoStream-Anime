@@ -3,6 +3,7 @@ import * as mangadex from '@/lib/providers/mangadex';
 import * as consumet from '@/lib/providers/consumet';
 import * as mangahook from '@/lib/providers/mangahook';
 import * as comick from '@/lib/providers/comick';
+import * as mangapill from '@/lib/providers/mangapill';
 
 const PROXY_BASE = '/api/manga/proxy?url=';
 
@@ -39,7 +40,15 @@ export async function GET(request: NextRequest) {
     }));
     return NextResponse.json(proxied);
   }
-  if (provider === 'consumet' || provider === 'comick_consumet' || provider === 'mangahere' || provider === 'mangapill') {
+  if (provider === 'mangapill') {
+    const pages = await mangapill.getChapterPages(id);
+    const proxied = pages.map((url: string) => ({
+      img: url.startsWith('http') ? `${PROXY_BASE}${encodeURIComponent(url)}` : url,
+      page: 0,
+    }));
+    return NextResponse.json(proxied);
+  }
+  if (provider === 'consumet' || provider === 'comick_consumet' || provider === 'mangahere') {
     const pages = await consumet.getChapterPages(id, provider === 'consumet' || provider === 'comick_consumet' ? 'comick' : provider);
     const proxied = pages.map((url: string) => ({
       img: url.startsWith('http') ? `${PROXY_BASE}${encodeURIComponent(url)}` : url,

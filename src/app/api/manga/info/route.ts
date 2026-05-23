@@ -4,6 +4,7 @@ import * as consumet from '@/lib/providers/consumet';
 import * as kitsu from '@/lib/providers/kitsu';
 import * as mangahook from '@/lib/providers/mangahook';
 import * as comick from '@/lib/providers/comick';
+import * as mangapill from '@/lib/providers/mangapill';
 import { mangaCache } from '@/lib/cache';
 
 export const dynamic = 'force-dynamic';
@@ -18,7 +19,7 @@ export async function GET(request: NextRequest) {
   }
 
   const isTitle = searchParams.get('isTitle') === 'true';
-  const cacheKey = `manga-info-v6-${provider || 'auto'}-${id}-${isTitle}`;
+  const cacheKey = `manga-info-v7-${provider || 'auto'}-${id}-${isTitle}`;
 
   try {
     const data = await mangaCache.getOrFetch(cacheKey, async () => {
@@ -69,12 +70,12 @@ export async function GET(request: NextRequest) {
       } else {
         const errors: string[] = [];
         
-        // Fetch chapters from mangapill (consumet)
+        // Fetch chapters from native mangapill
         let pillInfo = null;
         try {
-          const res = await consumet.searchManga(id, 'mangapill');
+          const res = await mangapill.searchManga(id);
           if (res.length > 0) {
-            const chs = await consumet.getMangaChapters(res[0].id, 'mangapill');
+            const chs = await mangapill.getMangaChapters(res[0].id);
             pillInfo = { id: res[0].id, title: res[0].title, chapters: chs, provider: 'mangapill' };
           }
         } catch (e: any) {
