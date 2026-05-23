@@ -47,7 +47,7 @@ export async function getMangaChapters(kitsuId: string): Promise<{ id: string; c
       // Kitsu pagination URLs are absolute, we need to extract the path
       if (data.links?.next) {
         const nextUrl = new URL(data.links.next);
-        url = nextUrl.pathname + nextUrl.search;
+        url = nextUrl.pathname.replace('/api/edge', '') + nextUrl.search;
       } else {
         break;
       }

@@ -14,6 +14,7 @@ const ALLOWED_PATTERNS = [
   { domain: 'cdn.myanimelist.net', referer: 'https://myanimelist.net/' },
   { domain: 'anilist.co', referer: 'https://anilist.co/' },
   { domain: 's4.anilist.co', referer: 'https://anilist.co/' },
+  { domain: 'readdetectiveconan.com', referer: 'https://mangapill.com/' },
 ];
 
 const TELEMETRY_URL = 'https://api.mangadex.network/report';
