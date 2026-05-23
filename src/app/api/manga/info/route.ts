@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   }
 
   const isTitle = searchParams.get('isTitle') === 'true';
-  const cacheKey = `manga-info-v7-${provider || 'auto'}-${id}-${isTitle}`;
+  const cacheKey = `manga-info-v8-${provider || 'auto'}-${id}-${isTitle}`;
 
   try {
     const data = await mangaCache.getOrFetch(cacheKey, async () => {
@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
         }
 
         // Merge volumes into pill chapters
-        if (pillInfo && pillInfo.chapters) {
+        if (pillInfo && pillInfo.chapters && pillInfo.chapters.length > 0) {
           pillInfo.chapters = pillInfo.chapters.map((c: any) => {
             let chNum = c.chapterNumber;
             if (!chNum && c.title) {

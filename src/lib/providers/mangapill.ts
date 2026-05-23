@@ -11,9 +11,15 @@ export interface MpChapter {
   title: string;
 }
 
+export const MP_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.5',
+};
+
 export async function searchManga(query: string): Promise<MpResult[]> {
   try {
-    const res = await fetch(`${BASE_URL}/search?q=${encodeURIComponent(query)}`);
+    const res = await fetch(`${BASE_URL}/search?q=${encodeURIComponent(query)}`, { headers: MP_HEADERS });
     const html = await res.text();
     const results: MpResult[] = [];
     
@@ -43,7 +49,7 @@ export async function searchManga(query: string): Promise<MpResult[]> {
 
 export async function getMangaChapters(mangaId: string): Promise<MpChapter[]> {
   try {
-    const res = await fetch(`${BASE_URL}/manga/${mangaId}`);
+    const res = await fetch(`${BASE_URL}/manga/${mangaId}`, { headers: MP_HEADERS });
     const html = await res.text();
     const chapters: MpChapter[] = [];
     
@@ -65,7 +71,7 @@ export async function getMangaChapters(mangaId: string): Promise<MpChapter[]> {
 
 export async function getChapterPages(chapterId: string): Promise<string[]> {
   try {
-    const res = await fetch(`${BASE_URL}/chapters/${chapterId}`);
+    const res = await fetch(`${BASE_URL}/chapters/${chapterId}`, { headers: MP_HEADERS });
     const html = await res.text();
     const pages: string[] = [];
     
