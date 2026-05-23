@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
   }
 
   const isTitle = searchParams.get('isTitle') === 'true';
-  const cacheKey = `manga-info-v5-${provider || 'auto'}-${id}-${isTitle}`;
+  const cacheKey = `manga-info-v6-${provider || 'auto'}-${id}-${isTitle}`;
 
   try {
     const data = await mangaCache.getOrFetch(cacheKey, async () => {

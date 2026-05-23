@@ -8,13 +8,13 @@ const PROVIDER_MODULES: { name: string; path: string }[] = [
   { name: 'mangapill', path: '@consumet/extensions/dist/providers/manga/mangapill' },
 ];
 
+import { MANGA } from '@consumet/extensions';
+
 async function getProvider(name: string): Promise<MangaParser | null> {
-  const mod = PROVIDER_MODULES.find((p) => p.name === name) || PROVIDER_MODULES[0];
-  if (!mod) return null;
   try {
-    const imported = await import(mod.path);
-    const Ctor: ProviderConstructor = imported.default;
-    return new Ctor();
+    if (name === 'mangapill') return new MANGA.MangaPill();
+    if (name === 'mangahere') return new MANGA.MangaHere();
+    return new MANGA.ComicK();
   } catch {
     return null;
   }
