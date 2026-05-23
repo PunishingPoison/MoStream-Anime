@@ -9,6 +9,7 @@ export interface MdChapter {
   id: string;
   chapterNumber: number;
   title: string;
+  volume?: string;
 }
 
 export interface MdMangaInfo {
@@ -66,11 +67,11 @@ export async function getMangaInfo(id: string): Promise<MdMangaInfo> {
     total = feed.total || 0;
     
     const chunk: MdChapter[] = (feed.data || [])
-      .filter((c: any) => !c.attributes?.isUnavailable && !c.attributes?.externalUrl && c.attributes?.pages > 0)
       .map((c: any) => ({
         id: c.id,
         chapterNumber: parseFloat(c.attributes?.chapter) || 0,
         title: c.attributes?.title || `Chapter ${c.attributes?.chapter}`,
+        volume: c.attributes?.volume || undefined,
       }))
       .filter((c: MdChapter) => c.chapterNumber > 0);
       

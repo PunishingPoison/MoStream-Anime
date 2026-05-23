@@ -328,6 +328,8 @@ export const anilist = {
 
       const title = m.title?.userPreferred || m.title?.romaji || m.title?.english || '';
       let realChaptersCount = m.chapters || m.episodes || 0;
+      let trueVolumes: string[] = [];
+      let chaptersData: any[] = [];
       
       try {
         if (title) {
@@ -341,7 +343,18 @@ export const anilist = {
           if (res.ok) {
             const result = await res.json();
             if (result.chapters && result.chapters.length > 0) {
-              realChaptersCount = result.chapters.length;
+              chaptersData = result.chapters;
+              realChaptersCount = chaptersData.length;
+              
+              const vols = new Set<string>();
+              chaptersData.forEach((c: any) => {
+                if (c.volume && c.volume !== 'null' && c.volume !== 'none') {
+                  vols.add(c.volume.toString());
+                }
+              });
+              if (vols.size > 0) {
+                trueVolumes = Array.from(vols).sort((a, b) => parseFloat(a) - parseFloat(b));
+              }
             }
           }
         }
@@ -349,11 +362,48 @@ export const anilist = {
         console.error('Failed to fetch real chapters for details', e);
       }
 
-      // Group into volumes of 100 chapters each
-      const CHUNKS_PER_VOL = 100;
-      const numVolumes = realChaptersCount > 0 
-        ? Math.ceil(realChaptersCount / CHUNKS_PER_VOL) 
-        : (m.volumes || 1);
+      let seasons: any[] = [];
+      let numVolumes = 1;
+
+      if (trueVolumes.length > 0) {
+        numVolumes = trueVolumes.length;
+        seasons = trueVolumes.map((vol, i) => {
+          const count = chaptersData.filter(c => c.volume === vol).length;
+          return {
+            id: i + 1,
+            season_number: i + 1, // We map the volume index to season_number
+            name: `Volume ${vol}`,
+            episode_count: count,
+            air_date: m.startDate?.year ? `${m.startDate.year}-01-01` : '',
+            poster_path: m.coverImage?.large || '',
+            _real_volume: vol,
+          };
+        });
+      } else {
+        // Fallback to chunks of 100
+        const CHUNKS_PER_VOL = 100;
+        numVolumes = realChaptersCount > 0 
+          ? Math.ceil(realChaptersCount / CHUNKS_PER_VOL) 
+          : (m.volumes || 1);
+
+        seasons = Array.from({ length: numVolumes }, (_, i) => {
+          let count = CHUNKS_PER_VOL;
+          if (realChaptersCount > 0 && i === numVolumes - 1) {
+            count = (realChaptersCount - i * CHUNKS_PER_VOL) || CHUNKS_PER_VOL;
+          } else if (realChaptersCount === 0) {
+            count = Math.ceil((m.chapters || m.episodes || 100) / numVolumes);
+          }
+          
+          return {
+            id: i + 1,
+            season_number: i + 1,
+            name: `Volume ${i + 1}`,
+            episode_count: count,
+            air_date: m.startDate?.year ? `${m.startDate.year}-01-01` : '',
+            poster_path: m.coverImage?.large || '',
+          };
+        });
+      }
 
       const mapped = {
         ...mapMedia(m, 'tv'),
@@ -372,23 +422,7 @@ export const anilist = {
               ...mapMedia(e.node, 'tv'),
             })),
         },
-        seasons: Array.from({ length: numVolumes }, (_, i) => {
-          let count = CHUNKS_PER_VOL;
-          if (realChaptersCount > 0 && i === numVolumes - 1) {
-            count = (realChaptersCount - i * CHUNKS_PER_VOL) || CHUNKS_PER_VOL;
-          } else if (realChaptersCount === 0) {
-            count = Math.ceil((m.chapters || m.episodes || 100) / numVolumes);
-          }
-          
-          return {
-            id: i + 1,
-            season_number: i + 1,
-            name: `Volume ${i + 1}`,
-            episode_count: count,
-            air_date: m.startDate?.year ? `${m.startDate.year}-01-01` : '',
-            poster_path: m.coverImage?.large || '',
-          };
-        }),
+        seasons,
         number_of_seasons: numVolumes,
         number_of_episodes: realChaptersCount || m.chapters || m.episodes || 0,
       };
@@ -415,7 +449,7 @@ export const anilist = {
       const m = data?.Media;
       const title = m?.title?.userPreferred || m?.title?.romaji || m?.title?.english || '';
       
-      let realChapters = [];
+      let realChapters: any[] = [];
       try {
         if (title) {
           const isServer = typeof window === 'undefined';
@@ -437,17 +471,31 @@ export const anilist = {
       }
 
       if (realChapters.length > 0) {
-        // Group chapters by volume or sort them if needed
         realChapters.sort((a: any, b: any) => a.chapterNumber - b.chapterNumber);
         
-        // MangaDex doesn't always have strict season/volume mapping we can trust blindly
-        // For simplicity, we just paginate them across 'seasons' (volumes) artificially if needed,
-        // or just return all chapters if season === 1.
-        // AniList creates pseudo-volumes based on m.volumes. Let's chunk them.
-        const CHUNKS_PER_VOL = 100;
-        const startIdx = (season - 1) * CHUNKS_PER_VOL;
-        const endIdx = startIdx + CHUNKS_PER_VOL;
-        const chunk = realChapters.slice(startIdx, endIdx);
+        const vols = new Set<string>();
+        realChapters.forEach((c: any) => {
+          if (c.volume && c.volume !== 'null' && c.volume !== 'none') {
+            vols.add(c.volume.toString());
+          }
+        });
+
+        let chunk = [];
+        if (vols.size > 0) {
+          const trueVolumes = Array.from(vols).sort((a, b) => parseFloat(a) - parseFloat(b));
+          const targetVolume = trueVolumes[season - 1];
+          if (targetVolume) {
+            chunk = realChapters.filter(c => c.volume === targetVolume);
+          } else {
+            chunk = realChapters; // Fallback
+          }
+        } else {
+          // Fallback to chunking
+          const CHUNKS_PER_VOL = 100;
+          const startIdx = (season - 1) * CHUNKS_PER_VOL;
+          const endIdx = startIdx + CHUNKS_PER_VOL;
+          chunk = realChapters.slice(startIdx, endIdx);
+        }
 
         const episodes = chunk.map((ch: any) => ({
           id: ch.id,

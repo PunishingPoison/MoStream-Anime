@@ -4,9 +4,9 @@ import { getChapterPagesByNumber, getAdjacentChapters } from '@/api/manga';
 import { Button, Skeleton } from '@heroui/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { FaChevronLeft, FaChevronRight, FaCheck } from 'react-icons/fa6';
-import { IoChevronBack } from 'react-icons/io5';
+import { FaChevronLeft, FaChevronRight, FaCheck, FaArrowLeft } from 'react-icons/fa6';
 import { BiError } from 'react-icons/bi';
+import { useRouter } from 'next/navigation';
 
 const PRELOAD_COUNT = 3;
 
@@ -17,6 +17,7 @@ interface MangaReaderProps {
 }
 
 export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: MangaReaderProps) {
+  const router = useRouter();
   const [chapterData, setChapterData] = useState<{
     pages: string[];
     totalPages: number;
@@ -156,27 +157,30 @@ export default function MangaReader({ mangaTitle, mangaId, chapterNumber }: Mang
 
   return (
     <div ref={scrollRef} onScroll={handleScroll} className="min-h-screen bg-black overflow-y-auto">
-      <div className="fixed top-0 left-0 right-0 z-30 flex items-center justify-between bg-gradient-to-b from-black/90 via-black/60 to-transparent px-4 py-4 transition-transform duration-300">
-        <div className="flex items-center gap-3">
+      <div className="fixed top-0 left-0 right-0 z-30 flex items-center justify-between bg-gradient-to-b from-black/90 via-black/60 to-transparent px-2 sm:px-4 py-2 sm:py-4 transition-transform duration-300">
+        <div className="flex items-center gap-1 sm:gap-3">
           <Button
             isIconOnly
+            variant="flat"
             size="sm"
-            variant="light"
-            className="text-white bg-white/10 backdrop-blur-sm hover:bg-white/20"
-            as={Link}
-            href={`/tv/${mangaId}`}
+            onPress={() => router.push(`/tv/${mangaId}`)}
+            className="text-white bg-white/10 backdrop-blur-sm hover:bg-white/20 scale-90 sm:scale-100"
           >
-            <IoChevronBack size={24} />
+            <FaArrowLeft size={16} />
           </Button>
-          <span className="text-sm font-semibold text-white drop-shadow-sm truncate max-w-[180px] md:max-w-md">
-            {mangaTitle} - Ch.{chapterNumber}
-          </span>
+          <div className="flex flex-col">
+            <span className="text-xs sm:text-sm font-semibold text-white drop-shadow-sm truncate max-w-[120px] sm:max-w-[180px] md:max-w-md">
+              {mangaTitle}
+            </span>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
+
+        <div className="flex items-center gap-1 sm:gap-3">
           <span className="hidden sm:inline text-xs text-white/60 tabular-nums">
             {currentPage}/{totalPages}
           </span>
-          <div className="flex items-center gap-1">
+          
+          <div className="flex items-center gap-1 scale-90 sm:scale-100">
             {prevChapter && (
               <Button
                 size="sm"

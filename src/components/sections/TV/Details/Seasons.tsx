@@ -62,10 +62,10 @@ const TvShowsSeasonsSelection = forwardRef<HTMLDivElement, TvShowsSeasonsSelecti
                 <img
                   src={getImageUrl(episode.still_path, 'title')}
                   alt={episode.name}
-                  className="h-20 w-36 object-cover transition-all duration-300 group-hover:scale-105 md:h-24 md:w-40"
+                  className="h-24 w-20 object-cover transition-all duration-300 group-hover:scale-105 sm:h-20 sm:w-36 md:h-24 md:w-40"
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                  <div className="flex size-10 items-center justify-center rounded-full bg-black/60 backdrop-blur-sm">
+                  <div className="flex size-8 sm:size-10 items-center justify-center rounded-full bg-black/60 backdrop-blur-sm">
                     <FaCirclePlay className="text-white" size={16} />
                   </div>
                 </div>

@@ -7,6 +7,7 @@ export interface ComickChapter {
   id: string;
   chapterNumber: number;
   title: string;
+  volume?: string;
 }
 
 const COMICK_API = 'https://api.comick.fun';
@@ -34,6 +35,7 @@ export async function getMangaInfo(slug: string): Promise<{ title: string; chapt
       id: c.hid,
       chapterNumber: parseFloat(c.chap) || 0,
       title: c.title || `Chapter ${c.chap}`,
+      volume: c.vol || undefined,
     })).filter((c: ComickChapter) => c.chapterNumber > 0);
     
     // Sort chapters ascending
