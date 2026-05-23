@@ -35,13 +35,31 @@ export async function searchManga(query: string): Promise<KitsuResult[]> {
   }));
 }
 
-export async function getMangaChapters(kitsuId: string): Promise<{ id: string; chapterNumber: number; title: string }[]> {
-  const data = await kitsuFetch<any>(
-    `/manga/${kitsuId}/chapters?page[limit]=100&sort=number`
-  );
-    return (data.data || []).map((c: any) => ({
+export async function getMangaChapters(kitsuId: string): Promise<{ id: string; chapterNumber: number; title: string; volumeNumber: number }[]> {
+  let chapters: any[] = [];
+  let url = `/manga/${kitsuId}/chapters?page[limit]=20&sort=number`;
+
+  try {
+    while (url && chapters.length < 2000) {
+      const data = await kitsuFetch<any>(url);
+      if (!data.data) break;
+      chapters.push(...data.data);
+      // Kitsu pagination URLs are absolute, we need to extract the path
+      if (data.links?.next) {
+        const nextUrl = new URL(data.links.next);
+        url = nextUrl.pathname + nextUrl.search;
+      } else {
+        break;
+      }
+    }
+  } catch (e) {
+    console.error('Kitsu chapter fetch error:', e);
+  }
+
+  return chapters.map((c: any) => ({
     id: c.id,
     chapterNumber: c.attributes?.number || 0,
     title: c.attributes?.canonicalTitle || `Chapter ${c.attributes?.number}`,
+    volumeNumber: c.attributes?.volumeNumber || 0,
   })).filter((c: { chapterNumber: number }) => c.chapterNumber > 0);
 }

@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
   }
 
   const isTitle = searchParams.get('isTitle') === 'true';
-  const cacheKey = `manga-info-v4-${provider || 'auto'}-${id}-${isTitle}`;
+  const cacheKey = `manga-info-v5-${provider || 'auto'}-${id}-${isTitle}`;
 
   try {
     const data = await mangaCache.getOrFetch(cacheKey, async () => {
@@ -68,6 +68,56 @@ export async function GET(request: NextRequest) {
         if (result) return result;
       } else {
         const errors: string[] = [];
+        
+        // Fetch chapters from mangapill (consumet)
+        let pillInfo = null;
+        try {
+          const res = await consumet.searchManga(id, 'mangapill');
+          if (res.length > 0) {
+            const chs = await consumet.getMangaChapters(res[0].id, 'mangapill');
+            pillInfo = { id: res[0].id, title: res[0].title, chapters: chs, provider: 'mangapill' };
+          }
+        } catch (e: any) {
+          errors.push(`mangapill: ${e.message}`);
+        }
+
+        // Fetch volumes from kitsu
+        let kitsuVols = new Map<number, string>();
+        try {
+          const kres = await kitsu.searchManga(id);
+          if (kres.length > 0) {
+            const kchs = await kitsu.getMangaChapters(kres[0].id);
+            // kitsu returns { id, chapterNumber, title }
+            // Wait, we need volumeNumber!
+            // I'll update kitsu.ts to return volumeNumber as well
+            kchs.forEach((c: any) => {
+              if (c.chapterNumber && c.volumeNumber) {
+                kitsuVols.set(Number(c.chapterNumber), c.volumeNumber.toString());
+              }
+            });
+          }
+        } catch (e: any) {
+          errors.push(`kitsu: ${e.message}`);
+        }
+
+        // Merge volumes into pill chapters
+        if (pillInfo && pillInfo.chapters) {
+          pillInfo.chapters = pillInfo.chapters.map((c: any) => {
+            let chNum = c.chapterNumber;
+            if (!chNum && c.title) {
+              const m = c.title.match(/Chapter (\d+(\.\d+)?)/i);
+              if (m) chNum = parseFloat(m[1]);
+            }
+            if (chNum) {
+              c.chapterNumber = chNum;
+              const vol = kitsuVols.get(chNum);
+              if (vol) c.volume = vol;
+            }
+            return c;
+          });
+          return pillInfo;
+        }
+
         const results = await Promise.all([
           fetchFromProvider('comick', id).catch((e) => { errors.push(`comick: ${e.message}`); return null; }),
           fetchFromProvider('mangadex', id).catch((e) => { errors.push(`mangadex: ${e.message}`); return null; }),

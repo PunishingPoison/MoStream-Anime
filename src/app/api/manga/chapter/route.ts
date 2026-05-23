@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(proxied);
   }
   if (provider === 'consumet' || provider === 'comick_consumet' || provider === 'mangahere' || provider === 'mangapill') {
-    const pages = await consumet.getChapterPages(id);
+    const pages = await consumet.getChapterPages(id, provider === 'consumet' || provider === 'comick_consumet' ? 'comick' : provider);
     const proxied = pages.map((url: string) => ({
       img: url.startsWith('http') ? `${PROXY_BASE}${encodeURIComponent(url)}` : url,
       page: 0,

@@ -34,8 +34,9 @@ export interface ConsumetChapter {
   provider: string;
 }
 
-export async function searchManga(query: string): Promise<ConsumetResult[]> {
-  const provider = await getProvider('comick');
+export async function searchManga(query: string, providerName?: string): Promise<ConsumetResult[]> {
+  const targetProvider = providerName || 'mangapill';
+  const provider = await getProvider(targetProvider);
   if (!provider) return [];
 
   try {
@@ -44,7 +45,7 @@ export async function searchManga(query: string): Promise<ConsumetResult[]> {
       id: r.id,
       title: typeof r.title === 'string' ? r.title : r.title?.userPreferred || r.title?.english || r.title?.romaji || '',
       image: r.image || '',
-      provider: 'comick',
+      provider: targetProvider,
     }));
   } catch {
     return [];
@@ -72,9 +73,14 @@ export async function getMangaChapters(
 }
 
 export async function getChapterPages(
-  chapterId: string
+  chapterId: string,
+  providerName?: string
 ): Promise<string[]> {
-  for (const mod of PROVIDER_MODULES) {
+  const modsToTry = providerName
+    ? PROVIDER_MODULES.filter(p => p.name === providerName)
+    : PROVIDER_MODULES;
+
+  for (const mod of modsToTry) {
     const provider = await getProvider(mod.name);
     if (!provider) continue;
     try {
